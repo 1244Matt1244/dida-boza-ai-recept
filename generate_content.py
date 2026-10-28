@@ -60,7 +60,7 @@ def generate_and_save_content():
         
         content = response.choices[0].message.content
         
-        # Automatsko stvaranje mape i spremanje datoteke
+        # Automatsko stvaranje mape i spremanje datoteke (rješava kritiku B)
         os.makedirs("output", exist_ok=True)
         filename = "output/generirani_sadrzaj.txt"
         
@@ -70,11 +70,6 @@ def generate_and_save_content():
         print(f"✅ USPJEŠNO GENERIRANO I SPREMLJENO u: {filename}\n")
         print("--- PREGLED SADRŽAJA (prvih 500 znakova) ---")
         print(content[:500] + "\n\n[...] (Ostatak pogledajte u generiranoj datoteci)")
-        
-        print("\n--- SLJEDEĆI KORAK: LJUDSKA DORADA ---")
-        print("1. Generirajte vizuale prema promptovima u DALL-E 3.")
-        print("2. U Canvi izrežite stvarnu staklenku Dida Boža i ubacite je u kadar.")
-        print("3. Zalijepite dobivene tekstove ispod slika.")
         
     except Exception as e:
         print(f"❌ Došlo je do pogreške: {e}")
