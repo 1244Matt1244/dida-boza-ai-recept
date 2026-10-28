@@ -4,9 +4,15 @@ from dotenv import load_dotenv
 
 # Učitava varijable iz .env datoteke
 load_dotenv()
-client = OpenAI()
 
-def generate_instagram_content():
+# Provjera je li API ključ postavljen
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("❌ OPENAI_API_KEY nije pronađen. Molimo kopirajte config.example.env u .env i upišite svoj ključ.")
+
+client = OpenAI(api_key=api_key)
+
+def generate_and_save_content():
     print("🚀 Pokrećem AI Recept za Dida Boža...\n")
     
     prompt = """
@@ -52,8 +58,18 @@ def generate_instagram_content():
             temperature=0.7
         )
         
-        print("✅ USPJEŠNO GENERIRANO:\n")
-        print(response.choices[0].message.content)
+        content = response.choices[0].message.content
+        
+        # Automatsko stvaranje mape i spremanje datoteke
+        os.makedirs("output", exist_ok=True)
+        filename = "output/generirani_sadrzaj.txt"
+        
+        with open(filename, "w", encoding="utf-8") as file:
+            file.write(content)
+            
+        print(f"✅ USPJEŠNO GENERIRANO I SPREMLJENO u: {filename}\n")
+        print("--- PREGLED SADRŽAJA (prvih 500 znakova) ---")
+        print(content[:500] + "\n\n[...] (Ostatak pogledajte u generiranoj datoteci)")
         
         print("\n--- SLJEDEĆI KORAK: LJUDSKA DORADA ---")
         print("1. Generirajte vizuale prema promptovima u DALL-E 3.")
@@ -62,7 +78,7 @@ def generate_instagram_content():
         
     except Exception as e:
         print(f"❌ Došlo je do pogreške: {e}")
-        print("Provjerite je li vaš OPENAI_API_KEY ispravno postavljen u .env datoteci.")
+        print("Provjerite je li vaš API ključ valjan i imate li internetsku vezu.")
 
 if __name__ == "__main__":
-    generate_instagram_content()
+    generate_and_save_content()
