@@ -29,3 +29,11 @@ Skripta koristi OpenAI API (GPT-4o) kako bi generirala:
 --- SLJEDEĆI KORAK: LJUDSKA DORADA ---
 1. Kopirajte vizualni prompt u ChatGPT/DALL-E.
 ...
+
+---
+
+### 3. `requirements.txt` (Provjeri da izgleda točno ovako)
+
+```text
+openai
+python-dotenv
