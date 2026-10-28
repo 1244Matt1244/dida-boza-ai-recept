@@ -7,7 +7,6 @@
 Ovaj repozitorij sadrži izvršivi AI recept (Python skriptu) korišten za izradu tri gotove Instagram objave za hrvatski brend **Dida Boža**. Projekt demonstrira kako se korištenjem AI alata može ubrzati proces stvaranja sadržaja uz zadržavanje autentičnog vizualnog identiteta brenda.
 
 ## 📦 Isporučeni materijali (Deliverables)
-Svi ključni dokumenti dostupni su izravno u repozitoriju:
 *   📄 [Osvrt i upute (PDF)](./Osvrt_i_Upute.pdf) - Dokumentacija, analiza i osvrt.
 *   📝 [Tekstovi objava (TXT)](./Tekstovi_objava.txt) - Konačni copy za sve tri objave.
 *   ⚙️ [Recept i promptovi (TXT)](./Recept_i_Promptovi.txt) - Paket promptova za ručno korištenje.
@@ -23,7 +22,29 @@ Svi ključni dokumenti dostupni su izravno u repozitoriju:
 | *Cilj: Poticanje interakcije* | *Cilj: Prikaz proizvoda i edukacija* | *Cilj: Emocionalna povezanost* |
 
 ### 🔍 Dokaz ljudske dorade
-Kako bi se izbjeglo da AI "izmisli" etiketu, korištena je stvarna staklenka Dida Boža s njihove službene stranice, koja je naknadno ubačena u AI-generirani ambijent (prikazano na slici za Objavu 2).
+Kako bi se izbjeglo da AI "izmisli" etikete, korištena je stvarna staklenka Dida Boža s njihove službene stranice, koja je naknadno ubačena u AI-generirani ambijent (prikazano na slici za Objavu 2).
+
+---
+
+## 📝 Konačni tekstovi objava (Copy)
+
+**Objava 1 (Slatko susreće slano)**
+> Slatko susreće slano. 🧀🍯
+> Jeste li ikada probali smokvu uz sir? Ta mala promjena donosi potpuno novo iskustvo za stolom. Dida Boža džem od smokve savršeno se slaže s kremastim sirom na kriški domaćeg kruha. 
+> Ako ste ljubitelj ovakvih kombinacija, napišite nam u komentarima - koji je vaš omiljeni sir uz smokvu? 👇
+> #DidaBoza #Smokva #SlatkoSlano #Dalmacija #Gourmet #FoodieCroatia
+
+**Objava 2 (Smokva. Kruh. Malo Mediterana.)**
+> Mali mediteranski ritual. 🌿🌊
+> Smokva. Kruh. Malo Mediterana. Ponekad je za savršen užitak potrebno samo nekoliko pravih sastojaka i trenutak vremena za sebe. 
+> Spremite ovu objavu za svoj sljedeći brunch i uživajte u okusu Dalmacije. 📌
+> #DidaBoza #MediteranskiUgođaj #Brunch #SlowLiving #EkoDzem #HrvatskaHrana
+
+**Objava 3 (Mali ritual. Veliki užitak.)**
+> Okus koji usporava dan. ⏳✨
+> Mali ritual. Veliki užitak. Pronađite svoj omiljeni način posluživanja našeg ekološkog džema od smokve. Bilo da ga mažete na tost, dodajete u jogurt ili poslužujete uz sir – svaki zalogaj je podsjetnik na sunce i more.
+> Označite osobu s kojom biste podijelili ovaj trenutak. 👇
+> #DidaBoza #Smokva #Tradicija #Uživanje #BreakfastIdeas #CroatianFood
 
 ---
 
@@ -48,30 +69,43 @@ Zatim otvorite `.env` i zamijenite vrijednost: `OPENAI_API_KEY=sk-proj-vas_tajni
 *(Napomena: `.env` je zaštićena `.gitignore` pravilima).*
 
 ### 4. Pokretanje
+
+**Opcija A — s API ključem (stvarno generiranje):**
 ```bash
 python generate_content.py
+```
+
+**Opcija B — bez API ključa (dry-run za testiranje):**
+```bash
+python generate_content.py --dry-run
 ```
 
 ---
 
 ## ⚙️ Što skripta radi i primjer izlaza?
-Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične vizualne promptove, tekstove i hashtagove za sve tri forme (Karusel, Slika, Reel). Rezultat se **automatski sprema** u mapu `output/generirani_sadrzaj.txt`.
+Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične vizualne promptove, tekstove i hashtagove za sve tri forme (Karusel, Slika, Reel). Rezultat se **automatski sprema** u mapu `output/`.
 
-**Primjer generiranog izlaza:**
+**Primjer izlaza nakon pokretanja (dry-run):**
 ```text
---- OBJAVA 2: POJEDINAČNA SLIKA ---
-Cilj: Poticanje interakcije
-Vizualni prompt: "A rustic Mediterranean table setting featuring crusty sourdough..."
-Ljudska dorada: "U Canvi izrežite stvarnu staklenku Dida Boža i postavite je..."
-Tekst objave: "Slatko susreće slano. 🧀🍯 Jeste li ikada probali..."
-Hashtagovi: #DidaBoza #Smokva #SlatkoSlano
+🚀 Pokrećem AI Recept za Dida Boža...
+ℹ️  Dry-run način: koristim primjer izlaza (bez API poziva).
+✅ Sadržaj spremljen u mapu 'output/'.
+```
+
+Struktura generirane mape:
+```text
+output/
+├── generirani_sadrzaj.txt
+├── objava_1.txt
+├── objava_2.txt
+└── objava_3.txt
 ```
 
 ---
 
 ## 📁 Struktura repozitorija
 ```text
-├── generate_content.py      # Glavna skripta (Recept)
+├── generate_content.py      # Glavna skripta
 ├── requirements.txt         # Python ovisnosti
 ├── config.example.env       # Primjer konfiguracije bez ključa
 ├── .gitignore               # Ignorira .env i output/
@@ -82,5 +116,8 @@ Hashtagovi: #DidaBoza #Smokva #SlatkoSlano
 └── images/                  # Finalni vizuali
 ```
 
-## ⚠️ Ograničenja
-AI generirane slike ne mogu se koristiti kao vjerodostojan prikaz stvarnog pakiranja bez intervencije čovjeka. Fokus je stavljen na statične objave jer AI video alati još uvijek imaju problema s konzistentnošću tekstura hrane u pokretu.
+## ⚠️ Ograničenja i napomene
+1. AI generirane slike ne mogu se koristiti kao vjerodostojan prikaz stvarnog pakiranja bez intervencije čovjeka (integracija staklenke).
+2. Fokus je stavljen na statične objave. Iako skripta generira i promptove za Reel, konačni video nije priložen jer je zadatak dopuštao odabir formata (odabrane su tri statične slike).
+3. **Napomena o PDF-u:** Ako se PDF datoteka ne prikazuje ispravno u GitHubovom pregledniku, istu možete preuzeti klikom na gumb "Download" i otvoriti lokalno.
+4. **Napomena o testiranju:** Skripta je testirana u `--dry-run` načinu rada. Stvarno generiranje putem API-ja zahtijeva vlastiti OpenAI ključ.
