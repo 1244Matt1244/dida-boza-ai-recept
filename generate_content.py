@@ -1,9 +1,11 @@
 import os
 from openai import OpenAI
+from dotenv import load_dotenv
 
-# Preporuka: Koristite .env datoteku za API ključ, nemojte ga hardkodirati!
-# os.environ["OPENAI_API_KEY"] = "vasi_kljuc_ovdje" 
+# Učitava varijable iz .env datoteke (ako postoji)
+load_dotenv()
 
+# OpenAI klijent automatski preuzima ključ iz okoline (ili .env datoteke)
 client = OpenAI()
 
 def generate_instagram_content():
@@ -24,7 +26,7 @@ def generate_instagram_content():
     
     try:
         response = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Ti si vrhunski AI stručnjak za marketing."},
                 {"role": "user", "content": prompt}
@@ -43,7 +45,7 @@ def generate_instagram_content():
         
     except Exception as e:
         print(f"❌ Došlo je do pogreške: {e}")
-        print("Provjerite je li vaš OPENAI_API_KEY ispravno postavljen.")
+        print("Provjerite je li vaš OPENAI_API_KEY ispravno postavljen u .env datoteci.")
 
 if __name__ == "__main__":
     generate_instagram_content()
