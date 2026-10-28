@@ -1,4 +1,3 @@
-```markdown
 # 🍯 AI Recept: Dida Boža — Generator Instagram Sadržaja
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
@@ -85,4 +84,3 @@ AI generirane slike ne mogu se koristiti kao vjerodostojan prikaz stvarnog pakir
 
 ## 📄 Licenca
 Ovaj projekt je otvorenog koda i dostupan pod [MIT licencom](https://choosealicense.com/licenses/mit/).
-```
