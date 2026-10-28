@@ -1,0 +1,23 @@
+AI RECEPT: DIDA BOŽA - KORAK PO KORAK
+Autor: Matej Martinović
+
+--- FAZA 1: GENERIRANJE POZADINE ---
+Alat: DALL-E 3 (putem ChatGPT-a)
+Prompt: "Golden-hour Mediterranean terrace scene features crusty sourdough topped with creamy cheese, glossy fig compote, and a thyme sprig on a handmade ceramic plate, surrounded by fresh figs, a jam-filled bowl, cheese and crackers, linen, and olive branches. Set against softly blurred stone villages, terracotta roofs, calm water, and distant hills, the rustic stone tabletop and warm natural light create an inviting, serene editorial food photograph with no people present."
+
+--- FAZA 2: LJUDSKA DORADA (INTEGRACIJA PROIZVODA) ---
+1. S web stranice (didaboza.hr) preuzeta je fotografija stvarne staklenke.
+2. U Canvi (ili Photoshopu) uklonjena je pozadina staklenke (Background Remover).
+3. Staklenka je pozicionirana u prvi plan generirane slike.
+4. Dodan je efekt meke sjene ispod staklenke kako bi se stopila s ambijentom.
+
+--- FAZA 3: OBLIKOVANJE (TIPOGRAFIJA) ---
+U Canvi su dodani tekstovi na slike:
+- Slika 1: "Slatko susreće slano / Jeste li probali smokvu uz sir?"
+- Slika 2: "Smokva. Kruh. Malo Mediterana. / Jednostavan zalogaj, veliki užitak."
+- Slika 3: "Mali ritual. Veliki užitak. / Pronađite svoj omiljeni način posluživanja smokve."
+Također, dodan je diskretni logo/banner "DIDA BOŽA • KREATIVNI KONCEPT" na dno svake slike.
+
+--- FAZA 4: GENERIRANJE TEKSTOVA ---
+Alat: ChatGPT
+Prompt: "Napiši tri kratka teksta za Instagram za brend Dida Boža. Prvi neka potiče interakciju o kombinaciji smokve i sira. Drugi neka potiče spremanje (saves) uz mediteranski ugođaj. Treći neka bude emotivan, o malim ritualima. Koristi topao ton i dodaj hashtagove."
