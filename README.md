@@ -32,7 +32,7 @@ Skripta koristi OpenAI API (GPT-4o) kako bi generirala:
 
 ---
 
-### 3. `requirements.txt` (Provjeri da izgleda točno ovako)
+### 3. requirements.txt
 
 ```text
 openai
