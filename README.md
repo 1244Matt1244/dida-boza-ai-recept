@@ -1,9 +1,3 @@
-Evo točno onoga što trebaš kopirati i zalijepiti na GitHub. Tri datoteke, čisto i spremno za predaju.
-
-### 1. `generate_content.py`
-*(Otvori datoteku na GitHubu, klikni olovčicu, obriši sve i zalijepi ovo)*
-
-```python
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -194,6 +188,3 @@ AI generirane slike ne mogu se koristiti kao vjerodostojan prikaz stvarnog pakir
 
 ## 📄 Licenca
 Ovaj projekt je otvorenog koda i dostupan pod [MIT licencom](https://choosealicense.com/licenses/mit/).
-```
-
-Kada sve tri datoteke ažuriraš na GitHubu, repozitorij je zaključan i spreman. Slobodno pošalji ZIP na e-mail i link na GitHub. Sretno!
