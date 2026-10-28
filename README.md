@@ -14,7 +14,7 @@ Cilj projekta je demonstrirati kako se korištenjem AI alata (LLM i generativna 
 
 | Objava 1 | Objava 2 | Objava 3 |
 | :---: | :---: | :---: |
-| ![Objava 1](images/Objava_1.jpg) | ![Objava 2](images/Objava_2.jpg) | ![Objava 3](images/Objava_3.jpg) |
+| ![Objava 1](images/objava1.jpg) | ![Objava 2](images/objava2.jpg) | ![Objava 3](images/objava3.jpg) |
 | *Cilj: Poticanje interakcije* | *Cilj: Edukacija i spremanje* | *Cilj: Emocionalna povezanost* |
 
 ### 🔍 Dokaz ljudske dorade (Integracija stvarnog brenda)
