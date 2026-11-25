@@ -4,7 +4,7 @@ Koristi Pillow (PIL) — bez ikakvih API poziva ili trošenja.
 Izlaz: images/karusel/slajd_1.png ... slajd_4.png
 """
 
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 import os
 
 os.makedirs("images/karusel", exist_ok=True)
@@ -57,6 +57,9 @@ def draw_center(draw, text, y, font, fill=(255, 255, 255), shadow=True):
 
 def make_slide(bg_path, title, subtitle=None, bullets=None, cta=None,
                out_path="slide.png", overlay_alpha=120):
+    if not os.path.exists(bg_path):
+        raise FileNotFoundError(f"Slika ne postoji: {bg_path}")
+
     img = Image.open(bg_path).convert("RGB")
     img = cover_resize(img, W, H)
     img = add_overlay(img, overlay_alpha)
@@ -93,9 +96,21 @@ def make_slide(bg_path, title, subtitle=None, bullets=None, cta=None,
     print(f"✅ {out_path}")
 
 
+# --- Provjeri koje slike postoje; fallback na bilo koju dostupnu ---
+def pick_bg(*candidates):
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    # Fallback: prva .jpg u images/
+    for f in os.listdir("images"):
+        if f.lower().endswith((".jpg", ".jpeg", ".png")):
+            return os.path.join("images", f)
+    raise FileNotFoundError("Nema nijedne slike u images/ za karusel.")
+
+
 # --- Slajd 1: Hook (povuci za priču) ---
 make_slide(
-    bg_path="images/objava2.jpg",
+    bg_path=pick_bg("images/objava2.jpg", "images/objava3.jpg", "images/objava1.jpg"),
     title="Smokva. Kruh.\nMalo Mediterana.",
     subtitle="→ Povuci za priču o smokvi",
     out_path="images/karusel/slajd_1.png",
@@ -104,7 +119,7 @@ make_slide(
 
 # --- Slajd 2: Prikaz proizvoda ---
 make_slide(
-    bg_path="images/staklenka.jpg",
+    bg_path=pick_bg("images/staklenka.jpg", "images/objava1.jpg"),
     title="Dida Boža",
     subtitle="Ekološki džem od smokve",
     bullets=["BIO certifikat", "240 g", "Dalmacija"],
@@ -114,7 +129,7 @@ make_slide(
 
 # --- Slajd 3: Edukacija ---
 make_slide(
-    bg_path="images/objava1.jpg",
+    bg_path=pick_bg("images/objava1.jpg", "images/objava3.jpg"),
     title="Zašto smokva?",
     bullets=[
         "Prirodni šećeri, bez konzervansa",
@@ -127,7 +142,7 @@ make_slide(
 
 # --- Slajd 4: CTA (poziv na akciju) ---
 make_slide(
-    bg_path="images/objava3.jpg",
+    bg_path=pick_bg("images/objava3.jpg", "images/objava1.jpg"),
     title="Koji je tvoj\nomiljeni način\nposluživanja?",
     subtitle="👇",
     cta="Piši nam u komentarima",
