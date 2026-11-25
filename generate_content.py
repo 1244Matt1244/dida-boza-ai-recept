@@ -12,6 +12,9 @@ def generate_with_api(
     proizvod="Ekološki džem od smokve 240 g",
     cilj="Interakcija, edukacija i emocionalna povezanost",
     ton="Topao i nostalgičan",
+    publika="Foodie scena, ljubitelji prirodnih proizvoda, Slow Living",
+    web_stranica="",
+    inspiracija="",
 ):
     """
     Generira sadržaj za tri Instagram objave koristeći OpenAI API.
@@ -20,15 +23,21 @@ def generate_with_api(
     `python generate_content.py` i dalje radio bez izmjena.
     Streamlit aplikacija prosljeđuje vlastite vrijednosti.
     """
+    dodatni_kontekst = ""
+    if web_stranica:
+        dodatni_kontekst += f"\n    Web stranica brenda: {web_stranica}"
+    if inspiracija:
+        dodatni_kontekst += f"\n    Inspiracija / uzor: {inspiracija}"
+
     prompt = f"""
     Ti si vrhunski stručnjak za društvene mreže i vizualni identitet brenda Dida Boža.
     Tvoj zadatak je generirati sadržaj za 3 Instagram objave.
 
     Brend: Dida Boža (ekološki džemovi, Dalmacija, tradicija, topao i nostalgičan ton).
-    Publika: Foodie scena, ljubitelji prirodnih proizvoda, Slow Living.
+    Publika: {publika}
     Proizvod u fokusu: {proizvod}
     Cilj: {cilj}
-    Ton: {ton}
+    Ton: {ton}{dodatni_kontekst}
 
     Vrati odgovor točno u ovom formatu (svako polje u vlastitom retku,
     s praznim redom između objava):

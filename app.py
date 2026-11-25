@@ -21,12 +21,18 @@ st.markdown(
 )
 
 with st.sidebar:
-    st.header("⚙️ Parametri")
+    st.header("⚙️ Brifing")
 
     proizvod = st.text_input(
         "Proizvod",
         "Ekološki džem od smokve 240 g",
         help="Naziv proizvoda koji se promovira u objavama.",
+    )
+
+    publika = st.text_input(
+        "Ciljna publika",
+        "Foodie scena, ljubitelji prirodnih proizvoda, Slow Living",
+        help="Kome je objava namijenjena.",
     )
 
     cilj = st.selectbox(
@@ -44,6 +50,23 @@ with st.sidebar:
     ton = st.selectbox(
         "Ton komunikacije",
         ["Topao i nostalgičan", "Edukativan", "Emotivan", "Zaigran"],
+    )
+
+    st.divider()
+    st.subheader("📎 Dodatne reference (opcionalno)")
+
+    web_stranica = st.text_input(
+        "Web stranica brenda",
+        "",
+        placeholder="https://www.didaboza.hr/",
+        help="Poveznica na službenu stranicu ili webshop.",
+    )
+
+    inspiracija = st.text_input(
+        "Inspiracija / uzor",
+        "",
+        placeholder="npr. profil brenda @bonne_maman, Jam Lab",
+        help="Instagram profil ili brend koji ti je uzor za ovaj sadržaj.",
     )
 
     st.divider()
@@ -88,6 +111,9 @@ if st.button("🚀 Generiraj 3 objave", type="primary", use_container_width=True
                     proizvod=proizvod,
                     cilj=cilj,
                     ton=ton,
+                    publika=publika,
+                    web_stranica=web_stranica,
+                    inspiracija=inspiracija,
                 )
             except Exception as e:
                 st.error(f"Greška pri pozivu API-ja: {e}")
