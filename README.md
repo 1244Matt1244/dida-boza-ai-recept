@@ -1,3 +1,4 @@
+```markdown
 # 🍯 AI Recept: Dida Boža — Generator Instagram Sadržaja
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
@@ -85,3 +86,93 @@ Preferirani način za ponavljanje recepta je kroz web-sučelje.
 git clone https://github.com/1244Matt1244/dida-boza-ai-recept.git
 cd dida-boza-ai-recept
 pip install -r requirements.txt
+```
+
+### 2. Konfiguracija (opcionalno)
+Za stvarno generiranje potreban je OpenAI API ključ:
+```bash
+cp config.example.env .env
+# uredite .env i upišite OPENAI_API_KEY
+```
+Ako preskočite ovaj korak, aplikacija radi u **dry-run** načinu (prikazuje primjer izlaza bez poziva API-ja).
+
+### 3. Pokretanje
+```bash
+streamlit run app.py
+```
+Aplikacija se otvara na `http://localhost:8501`. U bočnoj traci odaberite **proizvod**, **cilj** i **ton**, uključite/isključite **dry-run** i kliknite **Generiraj 3 objave**.
+
+### 4. Što aplikacija vraća
+Tri Instagram objave (cilj, vizualni prompt, tekst, hashtagovi) identične strukture kao CLI izlaz, s mogućnošću preuzimanja u `.txt`.
+
+### 5. Odnos prema CLI skripti
+`app.py` uvozi `generate_with_api` i `get_mock_content` iz `generate_content.py`, pa je logika generiranja **na jednom mjestu**. Izmjena prompta ili modela u `generate_content.py` automatski se odražava i u aplikaciji i u CLI-ju.
+
+---
+
+## 🚀 Kako pokrenuti Python skriptu (CLI)
+
+### 1. Preduvjeti
+Potreban vam je [Python 3.8+](https://www.python.org/downloads/) i aktivan [OpenAI API ključ](https://platform.openai.com/).
+
+### 2. Instalacija
+```bash
+git clone https://github.com/1244Matt1244/dida-boza-ai-recept.git
+cd dida-boza-ai-recept
+pip install -r requirements.txt
+```
+
+### 3. Konfiguracija (.env)
+Kopirajte primjer konfiguracijske datoteke i dodajte svoj API ključ:
+```bash
+cp config.example.env .env
+```
+Zatim otvorite `.env` i zamijenite vrijednost: `OPENAI_API_KEY=sk-proj-vas_tajni_kljuc_ovdje`. 
+*(Napomena: `.env` je zaštićena `.gitignore` pravilima).*
+
+### 4. Pokretanje
+**Opcija A — s API ključem (stvarno generiranje):**
+```bash
+python generate_content.py
+```
+**Opcija B — bez API ključa (dry-run za testiranje):**
+```bash
+python generate_content.py --dry-run
+```
+
+## ⚙️ Što skripta radi?
+Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične vizualne promptove, tekstove i hashtagove za sve tri forme (Karusel, Slika, Reel). Rezultat se **automatski sprema** u mapu `output/`. Dokaz uspješnog testiranja dostupan je u datoteci `primjer_izlaza_dry_run.txt`.
+
+---
+
+## 📈 Plan mjerenja i unapređenja (Feedback Loop)
+
+**Što mjerimo nakon objave:**
+| Metrika | Kako se mjeri | Cilj |
+|---------|---------------|------|
+| Spremljene objave (saves) | Instagram Insights | > 50 po objavi |
+| Komentari | Instagram Insights | > 20 po objavi |
+| Doseg (reach) | Instagram Insights | > 5.000 organskih |
+| Stopa interakcije | (lajkovi + komentari + spremanja) / doseg | > 5% |
+
+**Kako se recept poboljšava na temelju podataka:**
+1. **Tjedan 1:** Objave se objavljuju, prikupljaju se podaci 7 dana.
+2. **Tjedan 2:** Analiza — ako Objava 1 (interakcija) ima najviše komentara, sljedeći ciklus fokusira se na pitanja publici. Ako Objava 2 (edukacija) ima najviše spremanja, sljedeći ciklus ide u smjeru recepata i kulinarskih savjeta.
+3. **Tjedan 3:** AI prompt se ažurira s novim smjernicama na temelju podataka.
+4. **Tjedan 4:** A/B test dviju varijanti na manjem dijelu publike.
+
+## 📁 Struktura repozitorija
+```text
+├── app.py                   # Streamlit aplikacija (preporučeni ulaz)
+├── generate_content.py      # Glavna skripta (CLI)
+├── requirements.txt         # Python ovisnosti
+├── config.example.env       # Primjer konfiguracije bez ključa
+├── .gitignore               # Ignorira .env i output/
+├── README.md                # Dokumentacija
+├── Osvrt_i_Upute.pdf        # Završni PDF dokument
+├── Tekstovi_objava.txt      # Konačni tekstovi
+├── Recept_i_Promptovi.txt   # Paket promptova
+├── primjer_izlaza_dry_run.txt # Dokaz testiranja
+└── images/                  # Finalni vizuali
+```
+```
