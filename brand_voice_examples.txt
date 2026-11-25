@@ -1,0 +1,60 @@
+================================================================
+BRAND VOICE — PRIMJERI OBJAVA DIDA BOŽE
+================================================================
+
+UPUTA ZA POPUNJAVANJE:
+Ova datoteka služi kao "few-shot" kontekst za GPT-4o — model uči
+ton, stil i strukturu iz stvarnih primjera.
+
+KAKO POPUNITI:
+1. Otvori https://www.instagram.com/dida_boza/
+2. Odaberi 5-10 objava koje najbolje predstavljaju brend
+   (mješavina: nagradne igre, prikaz proizvoda, edukacija, sezona)
+3. Za svaku objavu kopiraj: datum, tip objave, hashtagove i cijeli tekst
+4. Zalijepi u format ispod
+
+NAPOMENA: Primjeri ispod su OZNAČENI kao "ILUSTRACIJA TONA"
+jer nisu stvarni citati — to su ilustracije tona. Zamijeni ih
+stvarnim objavama s profila prije korištenja u produkciji.
+
+================================================================
+ILUSTRACIJA 1 — nagradna igra
+================================================================
+Datum: [nepoznato — zamijeni stvarnim]
+Tip: nagradna igra
+Hashtagovi: #DidaBoza #nagradnaigra #Dalmacija
+
+Tekst:
+"Dragi naši, slavimo zajedno! 🎉 Poklanjamo 3 poklon paketa
+Dida Boža džemova. Sve što trebaš napraviti je:
+1. Zaprati @dida_boza
+2. Označi osobu s kojom bi podijelio/la džem
+3. Napiši u komentar koji ti je najdraži okus
+Sretno! 🍀 Rezultati u petak."
+
+================================================================
+ILUSTRACIJA 2 — prikaz proizvoda
+================================================================
+Datum: [nepoznato — zamijeni stvarnim]
+Tip: prikaz proizvoda
+Hashtagovi: #DidaBoza #EkoDzem #Smokva #Dalmacija
+
+Tekst:
+"Smokva iz Dalmacije, u staklenci. 🌿
+Naš ekološki džem od smokve pravi se po receptu koji se prenosi
+generacijama — bez konzervansa, bez umjetnih boja, samo smokva,
+šećer i malo limuna. BIO certifikat potvrđuje ono što već znamo:
+priroda najbolje zna."
+
+================================================================
+ILUSTRACIJA 3 — sezonska objava
+================================================================
+Datum: [nepoznato — zamijeni stvarnim]
+Tip: sezonska (ljeto)
+Hashtagovi: #DidaBoza #Ljeto #Dalmacija #SlowLiving
+
+Tekst:
+"Ljeto je stiglo. ☀️
+Vrijeme je za jutra bez žurbe, kavu na terasi i kruh s džemom
+od smokve. Ponekad je najveći luksuz — imati vremena.
+Uživajte u svom komadu Dalmacije. 🌊"

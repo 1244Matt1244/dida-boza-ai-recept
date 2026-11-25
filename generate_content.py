@@ -7,6 +7,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def load_brand_voice(path="brand_voice_examples.txt"):
+    """
+    Učitava primjere brenda iz datoteke (few-shot kontekst).
+    Ako datoteka ne postoji, vraća prazan string.
+    """
+    if not os.path.exists(path):
+        return ""
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    # Ograniči na prvih 4000 znakova da ne trošimo previše tokena
+    return content[:4000]
+
+
 def generate_with_api(
     client,
     proizvod="Ekološki džem od smokve 240 g",
@@ -18,12 +31,25 @@ def generate_with_api(
 ):
     """
     Generira sadržaj za tri Instagram objave koristeći OpenAI API.
+    Ako postoji brand_voice_examples.txt, koristi ga kao few-shot kontekst.
     """
     dodatni_kontekst = ""
     if web_stranica:
         dodatni_kontekst += f"\n    Web stranica brenda: {web_stranica}"
     if inspiracija:
         dodatni_kontekst += f"\n    Inspiracija / uzor: {inspiracija}"
+
+    # Few-shot: učitaj primjere brenda ako postoje
+    brand_voice = load_brand_voice()
+    few_shot = ""
+    if brand_voice:
+        few_shot = f"""
+
+    Evo primjera stvarnih objava brenda (uči ton, stil i strukturu):
+    {brand_voice}
+
+    Koristi sličan ton i strukturu, ali NE kopiraj tekstove.
+    """
 
     prompt = f"""
     Ti si vrhunski stručnjak za društvene mreže i vizualni identitet brenda Dida Boža.
@@ -33,7 +59,7 @@ def generate_with_api(
     Publika: {publika}
     Proizvod u fokusu: {proizvod}
     Cilj: {cilj}
-    Ton: {ton}{dodatni_kontekst}
+    Ton: {ton}{dodatni_kontekst}{few_shot}
 
     Vrati odgovor točno u ovom formatu (svako polje u vlastitom retku,
     s praznim redom između objava):
@@ -89,7 +115,6 @@ def generate_carousel_images(client, base_prompt, num_slides=4):
         f"{base_prompt}, overhead flat lay composition",
         f"{base_prompt}, lifestyle shot with hands holding the product",
     ]
-    # Ograniči na num_slides
     prompts = prompts[:num_slides]
     urls = []
     for p in prompts:
@@ -148,6 +173,13 @@ def main():
                 "datoteku ili pokrenite s --dry-run."
             )
         client = OpenAI(api_key=api_key)
+
+        # Provjeri postoji li brand voice datoteka
+        if os.path.exists("brand_voice_examples.txt"):
+            print("ℹ️  Korišten few-shot kontekst iz brand_voice_examples.txt\n")
+        else:
+            print("ℹ️  brand_voice_examples.txt nije pronađen — koristim samo smjernice.\n")
+
         content = generate_with_api(client)
 
     save_content(content)
