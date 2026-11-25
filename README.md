@@ -14,12 +14,12 @@ Aplikacija je dostupna na Streamlitu — **bez instalacije i bez API ključa** (
 
 **👉 [dida-boza-ai-recept.streamlit.app](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/)**
 
-Za stvarno generiranje putem OpenAI API-ja, vidi sekciju „Kako pokrenuti interaktivnu aplikaciju" ispod.
+Za stvarno generiranje teksta i vizuala (DALL-E 3), vidi sekciju „Kako pokrenuti interaktivnu aplikaciju" ispod.
 
 ---
 
-> **Što je stvarno isporučeno:** Tri statične Instagram objave (slike s tekstom) + PDF dokumentacija + Python recept + promptovi + **interaktivna Streamlit aplikacija**.
-> **Što recept može generirati (ali nije isporučeno u ovoj predaji):** promptove i tekstove za Karusel i Reel. Odabir formata je slobodan prema zadatku, a fokus je stavljen na visoko kvalitetne statične objave.
+> **Što je stvarno isporučeno:** Tri statične Instagram objave (slike s tekstom) + PDF dokumentacija + Python recept + promptovi + **interaktivna Streamlit aplikacija** s opcionalnom DALL-E 3 integracijom.
+> **Što recept može generirati:** tekstove i hashtagove (GPT-4o), vizualne promptove, te opcionalno same slike (DALL-E 3) i karusel od 4 slajda. U ovoj predaji fokus je stavljen na tri statične objave, dok su karusel i DALL-E generiranje dostupni u aplikaciji.
 
 ## 📋 Brifing i ulazne reference
 
@@ -36,12 +36,12 @@ Za stvarno generiranje putem OpenAI API-ja, vidi sekciju „Kako pokrenuti inter
 **Pretpostavke (na temelju vizualnog identiteta):** ciljna publika su ljubitelji prirodnih proizvoda, foodie scena i ljudi koji cijene "Slow Living"; ton komunikacije je topao, nostalgičan i edukativan.
 
 ## 📦 Isporučeni materijali (Deliverables)
-*   🌐 [Interaktivna aplikacija](./app.py) - Streamlit sučelje za generiranje objava.
+*   🌐 [Interaktivna aplikacija](./app.py) - Streamlit sučelje s interaktivnim brifingom.
 *   🚀 [Live demo](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/) - Aplikacija hostana na Streamlit Cloudu.
 *   📄 [Osvrt i upute (PDF)](./Osvrt_i_Upute.pdf) - Dokumentacija, analiza i osvrt.
 *   📝 [Tekstovi objava (TXT)](./Tekstovi_objava.txt) - Konačni copy za sve tri objave.
-*   ⚙️ [Recept i promptovi (TXT)](./Recept_i_Promptovi.txt) - Paket promptova za ručno korištenje.
-*   🐍 [Python skripta](./generate_content.py) - Automatizirani generator sadržaja (CLI).
+*   ⚙️ [Recept i promptovi (TXT)](./Recept_i_Promptovi.txt) - Paket promptova po fazama (Ulaz → Proces → Izlaz).
+*   🐍 [Python skripta](./generate_content.py) - Automatizirani generator sadržaja (CLI + DALL-E 3 funkcije).
 *   🧪 [Primjer izlaza (TXT)](./primjer_izlaza_dry_run.txt) - Dokaz uspješnog testiranja skripte (`--dry-run`).
 
 ## 🎨 Vizualni rezultati (Tri gotove objave)
@@ -117,13 +117,23 @@ Ako preskočite ovaj korak, aplikacija radi u **dry-run** načinu (prikazuje pri
 ```bash
 streamlit run app.py
 ```
-Aplikacija se otvara na `http://localhost:8501`. U bočnoj traci odaberite **proizvod**, **ciljnu publiku**, **cilj**, **ton** i opcionalno **web stranicu** i **inspiraciju**.
+Aplikacija se otvara na `http://localhost:8501`.
 
-#### 4. Što aplikacija vraća
-Tri Instagram objave (cilj, vizualni prompt, tekst, hashtagovi) identične strukture kao CLI izlaz, s mogućnošću preuzimanja u `.txt`.
+#### 4. Što aplikacija nudi
+- **Interaktivni brifing** u bočnoj traci: proizvod, ciljna publika, cilj objava, ton komunikacije
+- **Dodatne reference** (opcionalno): web stranica brenda i inspiracija
+- **Dry-run** (bez API ključa) za demonstraciju
+- **Stvarno generiranje teksta** putem GPT-4o (temperatura 0.7)
+- **DALL-E 3 generiranje vizuala** (opcionalno uz API ključ):
+  - **Statična slika** — jedna AI-generirana scena
+  - **Karusel (4 slajda)** — četiri povezane scene za višeslajdnu objavu
+- Prikaz tri generirane objave s prijelomima redova
+- Gumb za **preuzimanje rezultata u .txt**
+
+> ⚠️ **Napomena o DALL-E 3:** Generiranje slika troši OpenAI kredit (~$0.04 po slici). Ako nema API ključa, DALL-E opcija je automatski skrivena u sidebaru — aplikacija i dalje radi u dry-runu.
 
 #### 5. Odnos prema CLI skripti
-`app.py` uvozi `generate_with_api` i `get_mock_content` iz `generate_content.py`, pa je logika generiranja **na jednom mjestu**. Izmjena prompta ili modela u `generate_content.py` automatski se odražava i u aplikaciji i u CLI-ju.
+`app.py` uvozi `generate_with_api`, `get_mock_content`, `generate_image` i `generate_carousel_images` iz `generate_content.py`, pa je logika generiranja **na jednom mjestu**. Izmjena prompta ili modela u `generate_content.py` automatski se odražava i u aplikaciji i u CLI-ju.
 
 ---
 
@@ -160,6 +170,10 @@ python generate_content.py --dry-run
 ## ⚙️ Što skripta radi?
 Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične vizualne promptove, tekstove i hashtagove za sve tri forme (Karusel, Slika, Reel). Rezultat se **automatski sprema** u mapu `output/`. Dokaz uspješnog testiranja dostupan je u datoteci `primjer_izlaza_dry_run.txt`.
 
+Uz `generate_with_api`, skripta sadrži i dvije pomoćne funkcije:
+- **`generate_image(client, prompt)`** — generira jednu sliku pomoću DALL-E 3
+- **`generate_carousel_images(client, base_prompt, num_slides=4)`** — generira 4 varijacije iste teme za karusel
+
 ---
 
 ## 📈 Plan mjerenja i unapređenja (Feedback Loop)
@@ -181,7 +195,7 @@ Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične viz
 ## 📁 Struktura repozitorija
 ```text
 ├── app.py                   # Streamlit aplikacija (preporučeni ulaz)
-├── generate_content.py      # Glavna skripta (CLI)
+├── generate_content.py      # Glavna skripta (CLI + DALL-E 3 funkcije)
 ├── requirements.txt         # Python ovisnosti
 ├── config.example.env       # Primjer konfiguracije bez ključa
 ├── .streamlit/
@@ -203,7 +217,21 @@ Aplikacija je hostana na besplatnom Streamlit Community Cloudu. Za ponovni deplo
 
 1. Prijavi se na [share.streamlit.io](https://share.streamlit.io) GitHub računom.
 2. **Create app** → odaberi repo `1244Matt1244/dida-boza-ai-recept`, branch `main`, main file `app.py`.
-3. (Opcionalno) U **Advanced settings → Secrets** zalijepi `OPENAI_API_KEY = "sk-..."` za stvarno generiranje.
+3. (Opcionalno) U **Advanced settings → Secrets** zalijepi `OPENAI_API_KEY = "sk-..."` za stvarno generiranje teksta i vizuala.
 4. **Deploy**.
 
-Napomena: besplatni plan uspava aplikaciju nakon 7 dana neaktivnosti — prvo otvaranje traje 10–30 sekundi.
+Napomena: besplatni plan uspava aplikaciju nakon 7 dana neaktivnosti — prvo otvaranje traje 10–30 sekundi. Ako API ključ nije postavljen u Secrets, DALL-E opcija je automatski skrivena, a dry-run radi bez ograničenja.
+
+---
+
+## 🎯 Sažetak tehničkih odluka
+
+| Odluka | Obrazloženje |
+|---|---|
+| Streamlit (umjesto React/Next.js) | Brz razvoj, Python-native, besplatan hosting |
+| GPT-4o za tekst | Najbolji omjer kvalitete i cijene za copy na hrvatskom |
+| DALL-E 3 za vizuale | Integriran s OpenAI API-jem, kvalitetne editorial fotografije |
+| Dry-run kao default | Demonstracija bez trošenja kredita i bez API ključa |
+| Skrivanje DALL-E bez ključa | Sprječava greške kod korisnika bez ključa |
+| Interaktivni brifing u sidebaru | Personalizacija bez mijenjanja koda |
+| Zajednička logika u `generate_content.py` | Jedan izvor istine za app i CLI |
