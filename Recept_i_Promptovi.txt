@@ -1,15 +1,49 @@
 AI RECEPT: DIDA BOŽA - KORAK PO KORAK
 Autor: Matej Martinović
 
+============================================================
+PREPORUČENI NAČIN: STREAMLIT APLIKACIJA
+============================================================
+Recept je moguće pokrenuti kroz interaktivnu web-aplikaciju
+koja automatizira Fazu 4 (generiranje tekstova) i nudi
+jednostavno sučelje za ponavljanje postupka.
+
+Pokretanje:
+  1. pip install -r requirements.txt
+  2. streamlit run app.py
+  3. Otvori http://localhost:8501 u browseru
+
+U aplikaciji:
+  - Odaberi proizvod, cilj i ton u bočnoj traci
+  - Ostavi "Dry-run" uključen za demo bez API ključa
+  - Klikni "Generiraj 3 objave"
+  - Preuzmi rezultat kao .txt
+
+Za stvarno generiranje potreban je OPENAI_API_KEY u .env datoteci.
+Model: gpt-4o, temperatura 0.7.
+Izlaz je identičan CLI verziji (vidi Faze 1-4 ispod).
+
+============================================================
+ALTERNATIVNI NAČIN: CLI SKRIPTA
+============================================================
+Ako želiš pokrenuti bez web-sučelja:
+  python generate_content.py             (stvarno generiranje)
+  python generate_content.py --dry-run   (demo bez API ključa)
+
+Rezultat se sprema u output/generirani_sadrzaj.txt.
+
+
 --- FAZA 1: GENERIRANJE POZADINE ---
 Alat: DALL-E 3 (putem ChatGPT-a)
 Prompt: "Golden-hour Mediterranean terrace scene features crusty sourdough topped with creamy cheese, glossy fig compote, and a thyme sprig on a handmade ceramic plate, surrounded by fresh figs, a jam-filled bowl, cheese and crackers, linen, and olive branches. Set against softly blurred stone villages, terracotta roofs, calm water, and distant hills, the rustic stone tabletop and warm natural light create an inviting, serene editorial food photograph with no people present."
+
 
 --- FAZA 2: LJUDSKA DORADA (INTEGRACIJA PROIZVODA) ---
 1. S web stranice (didaboza.hr) preuzeta je fotografija stvarne staklenke.
 2. U Canvi (ili Photoshopu) uklonjena je pozadina staklenke (Background Remover).
 3. Staklenka je pozicionirana u prvi plan generirane slike.
 4. Dodan je efekt meke sjene ispod staklenke kako bi se stopila s ambijentom.
+
 
 --- FAZA 3: OBLIKOVANJE (TIPOGRAFIJA) ---
 U Canvi su dodani tekstovi na slike:
@@ -18,6 +52,13 @@ U Canvi su dodani tekstovi na slike:
 - Slika 3: "Mali ritual. Veliki užitak. / Pronađite svoj omiljeni način posluživanja smokve."
 Također, dodan je diskretni logo/banner "DIDA BOŽA • KREATIVNI KONCEPT" na dno svake slike.
 
+
 --- FAZA 4: GENERIRANJE TEKSTOVA ---
-Alat: ChatGPT
+Alat: ChatGPT (ili Streamlit aplikacija / CLI skripta)
 Prompt: "Napiši tri kratka teksta za Instagram za brend Dida Boža. Prvi neka potiče interakciju o kombinaciji smokve i sira. Drugi neka potiče spremanje (saves) uz mediteranski ugođaj. Treći neka bude emotivan, o malim ritualima. Koristi topao ton i dodaj hashtagove."
+
+Napomena: Streamlit aplikacija (app.py) i CLI skripta
+(generate_content.py) koriste isti prompt za Fazu 4. Rezultat
+sadrži vizualne promptove za Fazu 1, upute za Fazu 2 i 3, te
+tekstove i hashtagove za sve tri objave. Time se cijeli postupak
+može ponoviti bez ručnog pisanja prompta.
