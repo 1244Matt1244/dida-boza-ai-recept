@@ -1,4 +1,3 @@
-```markdown
 # 🍯 AI Recept: Dida Boža — Generator Instagram Sadržaja
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
@@ -174,5 +173,3 @@ Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične viz
 ├── Recept_i_Promptovi.txt   # Paket promptova
 ├── primjer_izlaza_dry_run.txt # Dokaz testiranja
 └── images/                  # Finalni vizuali
-```
-```
