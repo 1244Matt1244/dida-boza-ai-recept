@@ -3,9 +3,20 @@
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-green)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/)
 ![Status](https://img.shields.io/badge/Status-Završeno-success)
 
 Ovaj repozitorij sadrži izvršivi AI recept — **interaktivnu Streamlit aplikaciju** (`app.py`) i pripadajuću Python skriptu (`generate_content.py`) — korišten za izradu tri gotove Instagram objave za hrvatski brend **Dida Boža**. Projekt demonstrira kako se korištenjem AI alata može ubrzati proces stvaranja sadržaja uz zadržavanje autentičnog vizualnog identiteta brenda.
+
+## 🚀 Live demo
+
+Aplikacija je dostupna na Streamlitu — **bez instalacije i bez API ključa** (dry-run je uključen prema zadanim postavkama):
+
+**👉 [dida-boza-ai-recept.streamlit.app](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/)**
+
+Za stvarno generiranje putem OpenAI API-ja, vidi sekciju „Kako pokrenuti interaktivnu aplikaciju" ispod.
+
+---
 
 > **Što je stvarno isporučeno:** Tri statične Instagram objave (slike s tekstom) + PDF dokumentacija + Python recept + promptovi + **interaktivna Streamlit aplikacija**.
 > **Što recept može generirati (ali nije isporučeno u ovoj predaji):** promptove i tekstove za Karusel i Reel. Odabir formata je slobodan prema zadatku, a fokus je stavljen na visoko kvalitetne statične objave.
@@ -26,6 +37,7 @@ Ovaj repozitorij sadrži izvršivi AI recept — **interaktivnu Streamlit aplika
 
 ## 📦 Isporučeni materijali (Deliverables)
 *   🌐 [Interaktivna aplikacija](./app.py) - Streamlit sučelje za generiranje objava.
+*   🚀 [Live demo](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/) - Aplikacija hostana na Streamlit Cloudu.
 *   📄 [Osvrt i upute (PDF)](./Osvrt_i_Upute.pdf) - Dokumentacija, analiza i osvrt.
 *   📝 [Tekstovi objava (TXT)](./Tekstovi_objava.txt) - Konačni copy za sve tri objave.
 *   ⚙️ [Recept i promptovi (TXT)](./Recept_i_Promptovi.txt) - Paket promptova za ručno korištenje.
@@ -58,13 +70,13 @@ Ovaj repozitorij sadrži izvršivi AI recept — **interaktivnu Streamlit aplika
 
 **Objava 1 (Slatko susreće slano)**
 > Slatko susreće slano. 🧀🍯
-> Jeste li ikada probali smokvu uz sir? Ta mala promjena donosi potpuno novo iskustvo za stolom. Dida Boža džem od smokve savršeno se slaže s kremastim sirom na kriški domaćeg kruha. 
+> Jeste li ikada probali smokvu uz sir? Ta mala promjena donosi potpuno novo iskustvo za stolom. Dida Boža džem od smokve savršeno se slaže s kremastim sirom na kriški domaćeg kruha.
 > Ako ste ljubitelj ovakvih kombinacija, napišite nam u komentarima - koji je vaš omiljeni sir uz smokvu? 👇
 > #DidaBoza #Smokva #SlatkoSlano #Dalmacija #Gourmet #FoodieCroatia
 
 **Objava 2 (Smokva. Kruh. Malo Mediterana.)**
 > Mali mediteranski ritual. 🌿🌊
-> Smokva. Kruh. Malo Mediterana. Ponekad je za savršen užitak potrebno samo nekoliko pravih sastojaka i trenutak vremena za sebe. 
+> Smokva. Kruh. Malo Mediterana. Ponekad je za savršen užitak potrebno samo nekoliko pravih sastojaka i trenutak vremena za sebe.
 > Spremite ovu objavu za svoj sljedeći brunch i uživajte u okusu Dalmacije. 📌
 > #DidaBoza #MediteranskiUgođaj #Brunch #SlowLiving #EkoDzem #HrvatskaHrana
 
@@ -80,14 +92,20 @@ Ovaj repozitorij sadrži izvršivi AI recept — **interaktivnu Streamlit aplika
 
 Preferirani način za ponavljanje recepta je kroz web-sučelje.
 
-### 1. Instalacija
+### Brzi put: live demo
+
+Otvori **[dida-boza-ai-recept.streamlit.app](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/)** — dry-run je uključen prema zadanim postavkama, pa je demonstracija moguća bez API ključa.
+
+### Lokalno pokretanje
+
+#### 1. Instalacija
 ```bash
 git clone https://github.com/1244Matt1244/dida-boza-ai-recept.git
 cd dida-boza-ai-recept
 pip install -r requirements.txt
 ```
 
-### 2. Konfiguracija (opcionalno)
+#### 2. Konfiguracija (opcionalno)
 Za stvarno generiranje potreban je OpenAI API ključ:
 ```bash
 cp config.example.env .env
@@ -95,16 +113,16 @@ cp config.example.env .env
 ```
 Ako preskočite ovaj korak, aplikacija radi u **dry-run** načinu (prikazuje primjer izlaza bez poziva API-ja).
 
-### 3. Pokretanje
+#### 3. Pokretanje
 ```bash
 streamlit run app.py
 ```
-Aplikacija se otvara na `http://localhost:8501`. U bočnoj traci odaberite **proizvod**, **cilj** i **ton**, uključite/isključite **dry-run** i kliknite **Generiraj 3 objave**.
+Aplikacija se otvara na `http://localhost:8501`. U bočnoj traci odaberite **proizvod**, **ciljnu publiku**, **cilj**, **ton** i opcionalno **web stranicu** i **inspiraciju**.
 
-### 4. Što aplikacija vraća
+#### 4. Što aplikacija vraća
 Tri Instagram objave (cilj, vizualni prompt, tekst, hashtagovi) identične strukture kao CLI izlaz, s mogućnošću preuzimanja u `.txt`.
 
-### 5. Odnos prema CLI skripti
+#### 5. Odnos prema CLI skripti
 `app.py` uvozi `generate_with_api` i `get_mock_content` iz `generate_content.py`, pa je logika generiranja **na jednom mjestu**. Izmjena prompta ili modela u `generate_content.py` automatski se odražava i u aplikaciji i u CLI-ju.
 
 ---
@@ -126,7 +144,7 @@ Kopirajte primjer konfiguracijske datoteke i dodajte svoj API ključ:
 ```bash
 cp config.example.env .env
 ```
-Zatim otvorite `.env` i zamijenite vrijednost: `OPENAI_API_KEY=sk-proj-vas_tajni_kljuc_ovdje`. 
+Zatim otvorite `.env` i zamijenite vrijednost: `OPENAI_API_KEY=sk-proj-vas_tajni_kljuc_ovdje`.
 *(Napomena: `.env` je zaštićena `.gitignore` pravilima).*
 
 ### 4. Pokretanje
@@ -166,6 +184,8 @@ Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične viz
 ├── generate_content.py      # Glavna skripta (CLI)
 ├── requirements.txt         # Python ovisnosti
 ├── config.example.env       # Primjer konfiguracije bez ključa
+├── .streamlit/
+│   └── config.toml          # Tema i postavke za Streamlit Cloud
 ├── .gitignore               # Ignorira .env i output/
 ├── README.md                # Dokumentacija
 ├── Osvrt_i_Upute.pdf        # Završni PDF dokument
@@ -173,3 +193,17 @@ Skripta koristi OpenAI API (model **GPT-4o**) kako bi generirala specifične viz
 ├── Recept_i_Promptovi.txt   # Paket promptova
 ├── primjer_izlaza_dry_run.txt # Dokaz testiranja
 └── images/                  # Finalni vizuali
+```
+
+---
+
+## ☁️ Deploy na Streamlit Cloud
+
+Aplikacija je hostana na besplatnom Streamlit Community Cloudu. Za ponovni deploy ili vlastitu instancu:
+
+1. Prijavi se na [share.streamlit.io](https://share.streamlit.io) GitHub računom.
+2. **Create app** → odaberi repo `1244Matt1244/dida-boza-ai-recept`, branch `main`, main file `app.py`.
+3. (Opcionalno) U **Advanced settings → Secrets** zalijepi `OPENAI_API_KEY = "sk-..."` za stvarno generiranje.
+4. **Deploy**.
+
+Napomena: besplatni plan uspava aplikaciju nakon 7 dana neaktivnosti — prvo otvaranje traje 10–30 sekundi.
