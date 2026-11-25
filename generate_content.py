@@ -18,10 +18,6 @@ def generate_with_api(
 ):
     """
     Generira sadržaj za tri Instagram objave koristeći OpenAI API.
-
-    Parametri imaju zadane vrijednosti kako bi CLI poziv
-    `python generate_content.py` i dalje radio bez izmjena.
-    Streamlit aplikacija prosljeđuje vlastite vrijednosti.
     """
     dodatni_kontekst = ""
     if web_stranica:
@@ -67,6 +63,39 @@ def generate_with_api(
         temperature=0.7,
     )
     return response.choices[0].message.content
+
+
+def generate_image(client, prompt, size="1024x1024", quality="standard"):
+    """
+    Generira jednu sliku pomoću DALL-E 3 i vraća URL.
+    """
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=prompt,
+        size=size,
+        quality=quality,
+        n=1,
+    )
+    return response.data[0].url
+
+
+def generate_carousel_images(client, base_prompt, num_slides=4):
+    """
+    Generira više slika za karusel. Svaka slika je varijacija iste teme.
+    """
+    prompts = [
+        f"{base_prompt}, wide shot showing the full scene",
+        f"{base_prompt}, close-up detail of the product",
+        f"{base_prompt}, overhead flat lay composition",
+        f"{base_prompt}, lifestyle shot with hands holding the product",
+    ]
+    # Ograniči na num_slides
+    prompts = prompts[:num_slides]
+    urls = []
+    for p in prompts:
+        url = generate_image(client, p)
+        urls.append(url)
+    return urls
 
 
 def get_mock_content():
