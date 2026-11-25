@@ -67,7 +67,6 @@ with st.sidebar:
     st.caption("Model: `gpt-4o` · Temperatura: `0.7` · Jezik: hrvatski")
 
 
-# --- Generiranje ---
 if st.button("🚀 Generiraj 3 objave", type="primary", use_container_width=True):
     if dry_run:
         content = get_mock_content()
@@ -97,7 +96,7 @@ if st.button("🚀 Generiraj 3 objave", type="primary", use_container_width=True
         st.success("✅ Objave su generirane.")
 
     st.divider()
-    st.markdown(content)
+    st.text(content)
 
     st.download_button(
         "⬇️ Preuzmi kao .txt",
