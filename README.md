@@ -18,7 +18,7 @@ Za stvarno generiranje teksta i vizuala (DALL-E 3), vidi sekciju „Kako pokrenu
 
 ---
 
-> **Što je stvarno isporučeno:** Tri statične Instagram objave (slike s tekstom) + PDF dokumentacija + Python recept + promptovi + **interaktivna Streamlit aplikacija** s opcionalnom DALL-E 3 integracijom.
+> **Što je stvarno isporučeno:** Tri statične Instagram objave (slike s tekstom) + PDF dokumentacija + Python recept + promptovi + **interaktivna Streamlit aplikacija** s opcionalnom DALL-E 3 integracijom + **bonus karusel (4 slajda)**.
 > **Što recept može generirati:** tekstove i hashtagove (GPT-4o), vizualne promptove, te opcionalno same slike (DALL-E 3) i karusel od 4 slajda. U ovoj predaji fokus je stavljen na tri statične objave, dok su karusel i DALL-E generiranje dostupni u aplikaciji.
 
 ## 📋 Brifing i ulazne reference
@@ -42,6 +42,7 @@ Za stvarno generiranje teksta i vizuala (DALL-E 3), vidi sekciju „Kako pokrenu
 *   📝 [Tekstovi objava (TXT)](./Tekstovi_objava.txt) - Konačni copy za sve tri objave.
 *   ⚙️ [Recept i promptovi (TXT)](./Recept_i_Promptovi.txt) - Paket promptova po fazama (Ulaz → Proces → Izlaz).
 *   🐍 [Python skripta](./generate_content.py) - Automatizirani generator sadržaja (CLI + DALL-E 3 funkcije).
+*   🎠 [Generator karusela](./make_carousel.py) - Lokalni generator 4 slajda pomoću Pillow (bez API poziva).
 *   🧪 [Primjer izlaza (TXT)](./primjer_izlaza_dry_run.txt) - Dokaz uspješnog testiranja skripte (`--dry-run`).
 
 ## 🎨 Vizualni rezultati (Tri gotove objave)
@@ -52,6 +53,17 @@ Za stvarno generiranje teksta i vizuala (DALL-E 3), vidi sekciju „Kako pokrenu
 | :---: | :---: | :---: |
 | ![Objava 1](images/objava1.jpg) | ![Staklenka](images/staklenka.jpg) | ![Objava 3](images/objava3.jpg) |
 | *Cilj: Poticanje interakcije* | *Cilj: Prikaz proizvoda i edukacija* | *Cilj: Emocionalna povezanost* |
+
+### 🎠 Bonus: Karusel format (4 slajda)
+
+Uz tri statične objave, recept podržava i **karusel** — 4 povezana slajda generirana lokalno pomoću Pillow (`make_carousel.py`). Slajdovi su u `images/karusel/`:
+
+| Slajd 1 | Slajd 2 | Slajd 3 | Slajd 4 |
+| :---: | :---: | :---: | :---: |
+| ![Slajd 1](images/karusel/slajd_1.png) | ![Slajd 2](images/karusel/slajd_2.png) | ![Slajd 3](images/karusel/slajd_3.png) | ![Slajd 4](images/karusel/slajd_4.png) |
+| *Hook* | *Proizvod* | *Edukacija* | *CTA* |
+
+Karusel se generira naredbom `python make_carousel.py` — bez API poziva i bez trošenja kredita. U aplikaciji je karusel dostupan i putem DALL-E 3 (opcija „Karusel (4 slajda)" u sidebaru, vidljiva samo uz API ključ).
 
 ### 🛠️ Konkretan primjer ljudske dorade (prije → poslije)
 
@@ -137,6 +149,27 @@ Aplikacija se otvara na `http://localhost:8501`.
 
 ---
 
+## 🎠 Karusel (4 slajda) — lokalni generator
+
+Uz Streamlit aplikaciju, karusel se može generirati i **izvan nje**, lokalno, bez ikakvog API poziva:
+
+```bash
+python make_carousel.py
+```
+
+Skripta koristi **Pillow** za sastavljanje 4 slajda (Hook → Proizvod → Edukacija → CTA) od postojećih slika u `images/`. Rezultat se sprema u `images/karusel/slajd_1.png` … `slajd_4.png`.
+
+**Prednosti:**
+- Nema trošenja kredita (Pillow je lokalna biblioteka)
+- Radi bez API ključa
+- Deterministički izlaz — isti ulaz daje isti izlaz
+
+**Kada koristiti DALL-E karusel umjesto lokalnog:**
+- Ako želiš AI-generirane scene umjesto postojećih slika
+- Ako imaš API ključ i ne smeta ti trošak (~$0.16 za 4 slike)
+
+---
+
 ## 🚀 Kako pokrenuti Python skriptu (CLI)
 
 ### 1. Preduvjeti
@@ -196,6 +229,7 @@ Uz `generate_with_api`, skripta sadrži i dvije pomoćne funkcije:
 ```text
 ├── app.py                   # Streamlit aplikacija (preporučeni ulaz)
 ├── generate_content.py      # Glavna skripta (CLI + DALL-E 3 funkcije)
+├── make_carousel.py         # Lokalni generator karusela (Pillow)
 ├── requirements.txt         # Python ovisnosti
 ├── config.example.env       # Primjer konfiguracije bez ključa
 ├── .streamlit/
@@ -206,7 +240,15 @@ Uz `generate_with_api`, skripta sadrži i dvije pomoćne funkcije:
 ├── Tekstovi_objava.txt      # Konačni tekstovi
 ├── Recept_i_Promptovi.txt   # Paket promptova
 ├── primjer_izlaza_dry_run.txt # Dokaz testiranja
-└── images/                  # Finalni vizuali
+└── images/
+    ├── objava1.jpg          # Gotova objava 1
+    ├── staklenka.jpg        # Gotova objava 2 (stvarna staklenka)
+    ├── objava3.jpg          # Gotova objava 3
+    └── karusel/
+        ├── slajd_1.png      # Karusel — Hook
+        ├── slajd_2.png      # Karusel — Proizvod
+        ├── slajd_3.png      # Karusel — Edukacija
+        └── slajd_4.png      # Karusel — CTA
 ```
 
 ---
@@ -231,6 +273,7 @@ Napomena: besplatni plan uspava aplikaciju nakon 7 dana neaktivnosti — prvo ot
 | Streamlit (umjesto React/Next.js) | Brz razvoj, Python-native, besplatan hosting |
 | GPT-4o za tekst | Najbolji omjer kvalitete i cijene za copy na hrvatskom |
 | DALL-E 3 za vizuale | Integriran s OpenAI API-jem, kvalitetne editorial fotografije |
+| Pillow za lokalni karusel | Deterministički izlaz bez trošenja kredita |
 | Dry-run kao default | Demonstracija bez trošenja kredita i bez API ključa |
 | Skrivanje DALL-E bez ključa | Sprječava greške kod korisnika bez ključa |
 | Interaktivni brifing u sidebaru | Personalizacija bez mijenjanja koda |
