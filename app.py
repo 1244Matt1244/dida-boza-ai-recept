@@ -7,6 +7,19 @@ from generate_content import generate_with_api, get_mock_content
 
 load_dotenv()
 
+
+def get_api_key():
+    """Dohvaća API ključ iz Streamlit Secrets (cloud) ili .env (lokalno)."""
+    # Prvo probaj Streamlit Secrets (cloud)
+    try:
+        if "OPENAI_API_KEY" in st.secrets:
+            return st.secrets["OPENAI_API_KEY"]
+    except Exception:
+        pass
+    # Zatim .env / environment varijabla (lokalno)
+    return os.getenv("OPENAI_API_KEY", "")
+
+
 st.set_page_config(
     page_title="Dida Boža – Generator objava",
     page_icon="🍯",
@@ -82,8 +95,8 @@ with st.sidebar:
         api_key_input = st.text_input(
             "OpenAI API ključ",
             type="password",
-            value=os.getenv("OPENAI_API_KEY", ""),
-            help="Ako je prazno, koristi se OPENAI_API_KEY iz .env datoteke.",
+            value=get_api_key(),
+            help="Ako je prazno, koristi se OPENAI_API_KEY iz Secrets/.env.",
         )
 
     st.divider()
@@ -95,11 +108,11 @@ if st.button("🚀 Generiraj 3 objave", type="primary", use_container_width=True
         content = get_mock_content()
         st.info("Dry-run: prikazujem primjer izlaza bez poziva API-ja.")
     else:
-        key = api_key_input or os.getenv("OPENAI_API_KEY")
+        key = api_key_input or get_api_key()
         if not key:
             st.error(
-                "Nedostaje `OPENAI_API_KEY`. Postavite ga u `.env` datoteku "
-                "ili upišite u bočnu traku."
+                "Nedostaje `OPENAI_API_KEY`. Postavite ga u Streamlit Secrets "
+                "ili u `.env` datoteku, ili upišite u bočnu traku."
             )
             st.stop()
 
