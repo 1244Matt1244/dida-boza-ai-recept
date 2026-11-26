@@ -4,11 +4,21 @@
 ![Pandas](https://img.shields.io/badge/Pandas-2.x-150458)
 ![Pillow](https://img.shields.io/badge/Pillow-Image%20Processing-yellow)
 ![Tests](https://img.shields.io/badge/Tests-21%20passed-brightgreen)
+[![CI](https://github.com/1244Matt1244/dida-boza-ai-recept/actions/workflows/tests.yml/badge.svg)](https://github.com/1244Matt1244/dida-boza-ai-recept/actions/workflows/tests.yml)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/)
 ![API Cost](https://img.shields.io/badge/API%20Cost-€0%20in%20local%20workflow-brightgreen)
 
 Python projekt koji demonstrira pripremu AI-generiranog Instagram sadržaja, lokalnu automatizaciju vizualnih materijala i analizu društvenih metrika za hrvatski brend **Dida Boža**.
 
 Projekt povezuje Python automatizaciju, prompt engineering, obradu slika, CSV podatke i analitičko izvještavanje u jedinstveni workflow.
+
+## 🚀 Live demo
+
+Streamlit aplikacija je dostupna online — **bez instalacije i bez API ključa** (dry-run je uključen prema zadanim postavkama):
+
+**👉 [dida-boza-ai-recept.streamlit.app](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/)**
+
+---
 
 ## 1. Cilj projekta
 
@@ -37,20 +47,32 @@ Projekt je osmišljen tako da se osnovni workflow može izvršavati bez plaćeni
 | CSV | Pohrana demonstracijskih i analitičkih podataka |
 | Streamlit | Sučelje aplikacije |
 | pytest | Automatizirano testiranje |
+| GitHub Actions | CI — automatsko pokretanje testova |
 
-## 3. Struktura projekta
+## 3. Isporučeni materijali (Deliverables)
+
+- 🌐 [Streamlit aplikacija](./app.py) — interaktivno sučelje s brifingom
+- 🚀 [Live demo](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/) — hostano na Streamlit Cloudu
+- 📘 [Portfolio case study (EN)](./PORTFOLIO.md) — problem, arhitektura, rezultati
+- 📄 [Osvrt i upute (PDF)](./Osvrt_i_Upute.pdf) — dokumentacija, analiza i osvrt
+- 📝 [Tekstovi objava](./Tekstovi_objava.txt) — konačni copy za tri objave
+- ⚙️ [Recept i promptovi](./Recept_i_Promptovi.txt) — paket promptova po fazama
+- 🎠 [Generator karusela](./make_carousel.py) — 4 slajda lokalno pomoću Pillow
+- 📊 [Analiza metrika](./analyze_metrics.py) — CSV analiza i preporuke
+
+## 4. Struktura projekta
 
 ```text
 dida-boza-ai-recept/
 │
-├── app.py
-├── generate_content.py
-├── make_carousel.py
-├── analyze_metrics.py
-├── compare_metrics.py
-├── weekly_report.py
-├── create_dashboard.py
-├── run_all.py
+├── app.py                      # Streamlit aplikacija
+├── generate_content.py         # Priprema prompta + spremanje sadržaja
+├── make_carousel.py            # Generator karusela (Pillow)
+├── analyze_metrics.py          # Analiza Instagram metrika
+├── compare_metrics.py          # Usporedba razdoblja
+├── weekly_report.py            # Tjedni izvještaj
+├── create_dashboard.py         # Grafički dashboard (Matplotlib)
+├── run_all.py                  # End-to-end pipeline
 │
 ├── brand_voice_examples.txt
 ├── requirements.txt
@@ -73,6 +95,14 @@ dida-boza-ai-recept/
 │   ├── analiza_rezultata.txt
 │   └── ...
 │
+├── .github/
+│   └── workflows/
+│       └── tests.yml           # CI: pytest na Python 3.10/3.11/3.12
+│
+├── PORTFOLIO.md                # Engleski case study
+├── Osvrt_i_Upute.pdf           # Završni PDF dokument
+├── README.md
+│
 └── tests/
     ├── test_generate.py
     └── test_analytics.py
@@ -80,7 +110,7 @@ dida-boza-ai-recept/
 
 Generirane datoteke u direktoriju `output/` ne moraju biti dio Git repozitorija.
 
-## 4. Instalacija
+## 5. Instalacija
 
 Potrebni su Python 3.8 ili noviji i Git.
 
@@ -115,7 +145,7 @@ Provjera instalacije:
 python -m pip check
 ```
 
-## 5. Generiranje AI sadržaja
+## 6. Generiranje AI sadržaja
 
 ### Korak 1 — priprema prompta
 
@@ -161,8 +191,6 @@ Ručno spremanje sadržaja generiranog u ChatGPT-u:
 python generate_content.py --save-content
 ```
 
-Nakon pokretanja postupka slijedi upute u terminalu za unos i spremanje generiranog sadržaja.
-
 ### Korak 2 — izrada Instagram karusela
 
 ```bash
@@ -185,7 +213,7 @@ Upute za grafičku doradu i pripremu vizuala generiraju se kroz glavni pipeline:
 output/canva_upute.txt
 ```
 
-## 6. Automatizirani pipeline
+## 7. Automatizirani pipeline
 
 Glavna skripta povezuje sedam koraka u jedinstveni proces:
 
@@ -211,23 +239,13 @@ Dodatne opcije:
 python run_all.py --skip-analytics
 ```
 
-Pokreće pripremu prompta, izradu karusela i Canva upute, bez analize, usporedbe, izvještaja i dashboarda.
-
 **Ručno spremanje AI sadržaja:**
 
 ```bash
 python run_all.py --save-content
 ```
 
-Pokreće samo postupak ručnog spremanja sadržaja generiranog u ChatGPT-u, a zatim završava.
-
-Nakon spremanja sadržaja, za pokretanje cijelog pipelinea koristi:
-
-```bash
-python run_all.py
-```
-
-## 7. Instagram Analytics
+## 8. Instagram Analytics
 
 Projekt sadrži zaseban modul za analizu Instagram metrika.
 
@@ -251,21 +269,15 @@ Analiza obuhvaća:
 
 ### Usporedba rezultata
 
-Za usporedbu prethodnog i novog razdoblja:
-
 ```bash
 python compare_metrics.py metrics_demo_old.csv metrics_demo_new.csv
 ```
-
-Modul omogućuje usporedbu ključnih metrika i promjena između dva razdoblja.
 
 ### Tjedni izvještaj
 
 ```bash
 python weekly_report.py
 ```
-
-Skripta generira izvještaj s pregledom analitičkih rezultata.
 
 ### Grafički dashboard
 
@@ -279,7 +291,7 @@ Rezultat se sprema u:
 output/metrics_dashboard.png
 ```
 
-## 8. Demonstracijski rezultati
+## 9. Demonstracijski rezultati
 
 Za provjeru analitičkog modula korišteni su demonstracijski podaci s tri objave u svakom razdoblju.
 
@@ -295,9 +307,9 @@ Najuspješniji format u novom demonstracijskom uzorku bio je edukativni sadržaj
 
 **Važno:** navedeni podaci su simulirani i služe za demonstraciju funkcionalnosti analitičkog sustava. Nisu stvarni rezultati Instagram profila Dida Boža. Uzorak je premalen za pouzdane poslovne zaključke.
 
-## 9. Automatizirano testiranje
+## 10. Automatizirano testiranje
 
-Projekt sadrži 21 pytest test.
+Projekt sadrži **21 pytest test**.
 
 Pokretanje testova:
 
@@ -327,7 +339,9 @@ Provjera sintakse Python datoteka:
 python -m compileall -q .
 ```
 
-## 10. Konfiguracija i troškovi
+**CI:** GitHub Actions automatski pokreće testove na Python 3.10, 3.11 i 3.12 pri svakom pushu.
+
+## 11. Konfiguracija i troškovi
 
 Osnovni workflow ne zahtijeva OpenAI API ključ.
 
@@ -340,7 +354,7 @@ Osnovni workflow ne zahtijeva OpenAI API ključ.
 
 Za lokalno pokretanje osnovnog pipelinea nije potrebno konfigurirati `OPENAI_API_KEY`.
 
-## 11. Ograničenja i transparentnost
+## 12. Ograničenja i transparentnost
 
 Projekt razlikuje automatizirane funkcije od ručnih AI koraka.
 
@@ -352,7 +366,7 @@ Projekt razlikuje automatizirane funkcije od ručnih AI koraka.
 
 Time se izbjegava predstavljanje demonstracijskih rezultata kao stvarnih poslovnih podataka ili ručnog AI procesa kao potpuno autonomnog sustava.
 
-## 12. Moguća buduća unapređenja
+## 13. Moguća buduća unapređenja
 
 - Povezivanje sa stvarnim Instagram Insights podacima.
 - Automatizirano preuzimanje metrika putem podržanog API-ja.
@@ -360,6 +374,7 @@ Time se izbjegava predstavljanje demonstracijskih rezultata kao stvarnih poslovn
 - A/B testiranje promptova i sadržajnih formata.
 - Proširenje dashboarda dodatnim analitičkim pokazateljima.
 - Daljnje proširenje Streamlit sučelja.
+- DALL-E 3 integracija za generiranje vizuala (kod prisutan, nije verificiran stvarnim API pozivom).
 
 ---
 
@@ -367,6 +382,8 @@ Time se izbjegava predstavljanje demonstracijskih rezultata kao stvarnih poslovn
 
 **Projekt:** Dida Boža — AI-Assisted Content & Analytics Pipeline
 
-**Tehnologije:** Python, AI Prompt Engineering, Pillow, Pandas, Matplotlib, CSV, Streamlit, pytest
+**Tehnologije:** Python, AI Prompt Engineering, Pillow, Pandas, Matplotlib, CSV, Streamlit, pytest, GitHub Actions
 
 **GitHub:** https://github.com/1244Matt1244/dida-boza-ai-recept
+
+**Live demo:** https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/
