@@ -1,100 +1,113 @@
 
 """
-analyze_metrics.py
+DIDA BOŽA — NAPREDNA INSTAGRAM ANALITIKA
 
-Analiza Instagram metrika za projekt Dida Boža.
+Značajke:
+- Učitavanje i validacija CSV datoteka
+- Normalizacija numeričkih vrijednosti
+- Analiza kvalitete podataka
+- Prosječni i ponderirani engagement rate
+- Analiza prema tipu objave i danu u tjednu
+- Analiza hashtagova
+- Prepoznavanje najboljih rezultata
+- Automatske preporuke
+- Izvoz izvještaja u TXT datoteku
 
-Analizira:
-- Prosječne lajkove, komentare, saves i doseg
-- Engagement rate (stopu interakcije)
-- Najbolji dan objavljivanja
-- Najuspješniji tip objave
-- Najčešće hashtagove
-- Preporuke za sljedeći ciklus objava
-
-Korištenje:
-    python analyze_metrics.py
-    python analyze_metrics.py metrics_template.csv
-    python analyze_metrics.py metrics.csv
-
-CSV stupci:
-    datum,tip_objave,lajkovi,komentari,saves,doseg,hashtagovi
+Ne koristi API niti zahtijeva plaćene servise.
 """
 
+import argparse
 import csv
-import sys
 import re
+import sys
+
 from pathlib import Path
 from collections import Counter, defaultdict
 from datetime import datetime
 
 
-# --------------------------------------------------
+# ============================================================
 # POSTAVKE
-# --------------------------------------------------
+# ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "output"
 
-DEFAULT_CSV = BASE_DIR / "metrics.csv"
-TEMPLATE_CSV = BASE_DIR / "metrics_template.csv"
-REPORT_FILE = OUTPUT_DIR / "analiza_rezultata.txt"
+DEFAULT_METRICS_FILE = BASE_DIR / "metrics_demo_new.csv"
 
-DAYS_HR = {
-    0: "Ponedjeljak",
-    1: "Utorak",
-    2: "Srijeda",
-    3: "Četvrtak",
-    4: "Petak",
-    5: "Subota",
-    6: "Nedjelja",
+REQUIRED_COLUMNS = {
+    "datum",
+    "tip_objave",
+    "lajkovi",
+    "komentari",
+    "saves",
+    "doseg",
+    "hashtagovi",
 }
 
+NUMERIC_COLUMNS = (
+    "lajkovi",
+    "komentari",
+    "saves",
+    "doseg",
+)
 
-# --------------------------------------------------
+MIN_SAMPLE_SIZE = 5
+
+
+# ============================================================
 # POMOĆNE FUNKCIJE
-# --------------------------------------------------
+# ============================================================
 
 def parse_number(value):
-    """
-    Pretvara tekst u broj.
-    Podržava formate poput 3200, 3.200 i 3,200.
-    Prazne ili neispravne vrijednosti vraćaju None.
-    """
+    """Pretvara broj ili tekst u cijeli broj."""
 
     if value is None:
         return None
 
-    value = str(value).strip()
+    text = str(value).strip().replace(" ", "")
 
-    if not value:
+    if not text:
         return None
 
-    value = value.replace(" ", "")
+    if text.lower() in {
+        "nan", "none", "null", "n/a", "na", "-"
+    }:
+        return None
+
+    if re.fullmatch(r"\d{1,3}([.,]\d{3})+", text):
+        text = text.replace(".", "").replace(",", "")
+    else:
+        text = text.replace(",", ".")
 
     try:
-        return int(value.replace(".", "").replace(",", ""))
-    except ValueError:
+        number = float(text)
+
+        if not number.is_integer():
+            return None
+
+        return int(number)
+
+    except (ValueError, TypeError):
         return None
 
 
 def parse_date(value):
-    """
-    Podržava nekoliko uobičajenih formata datuma.
-    """
+    """Pretvara podržane formate datuma u datetime."""
 
     if not value:
         return None
 
     value = str(value).strip()
 
-    formats = [
+    formats = (
         "%d.%m.%Y.",
         "%d.%m.%Y",
         "%Y-%m-%d",
         "%d/%m/%Y",
         "%d-%m-%Y",
-    ]
+        "%Y/%m/%d",
+    )
 
     for date_format in formats:
         try:
@@ -106,9 +119,12 @@ def parse_date(value):
 
 
 def average(values):
-    """Računa prosjek samo dostupnih vrijednosti."""
+    """Izračun prosjeka bez nedostajućih vrijednosti."""
 
-    valid = [value for value in values if value is not None]
+    valid = [
+        value for value in values
+        if value is not None
+    ]
 
     if not valid:
         return None
@@ -117,7 +133,7 @@ def average(values):
 
 
 def format_average(value, decimals=0):
-    """Formatira prosjek ili prikazuje N/A."""
+    """Formatiranje broja s decimalnom točkom."""
 
     if value is None:
         return "N/A"
@@ -125,424 +141,786 @@ def format_average(value, decimals=0):
     return f"{value:.{decimals}f}"
 
 
-# --------------------------------------------------
-# UČITAVANJE CSV DATOTEKE
-# --------------------------------------------------
+def safe_percentage(numerator, denominator):
+    """Sigurno izračunavanje postotka."""
+
+    if denominator is None or denominator <= 0:
+        return None
+
+    return numerator / denominator * 100
+
+
+def normalize_text(value):
+    """Normalizacija teksta."""
+
+    return str(value or "").strip().lower()
+
+
+# ============================================================
+# UČITAVANJE CSV PODATAKA
+# ============================================================
 
 def load_metrics(path):
-    """Učitava CSV i vraća listu redaka."""
+    """Učitava i validira CSV datoteku."""
+
+    path = Path(path)
 
     if not path.exists():
-        print(f"❌ Datoteka ne postoji: {path}")
-        sys.exit(1)
+        raise FileNotFoundError(
+            f"Datoteka ne postoji: {path}"
+        )
+
+    rows = []
 
     try:
-        with open(path, "r", encoding="utf-8-sig", newline="") as file:
+        with path.open(
+            "r",
+            encoding="utf-8-sig",
+            newline=""
+        ) as file:
+
             reader = csv.DictReader(file)
 
             if not reader.fieldnames:
-                print("❌ CSV datoteka nema zaglavlja.")
-                sys.exit(1)
+                raise ValueError(
+                    "CSV datoteka nema zaglavlje."
+                )
 
-            required_columns = {
-                "datum",
-                "tip_objave",
-                "lajkovi",
-                "komentari",
-                "saves",
-                "doseg",
-                "hashtagovi",
+            headers = {
+                str(header).strip().lower()
+                for header in reader.fieldnames
+                if header
             }
 
-            missing = required_columns - set(reader.fieldnames)
+            missing = REQUIRED_COLUMNS - headers
 
             if missing:
-                print(
-                    "❌ Nedostaju CSV stupci: "
+                raise ValueError(
+                    "Nedostaju obavezni stupci: "
                     + ", ".join(sorted(missing))
                 )
-                sys.exit(1)
 
-            rows = list(reader)
+            for row_number, raw_row in enumerate(
+                reader,
+                start=2
+            ):
 
-    except OSError as error:
-        print(f"❌ Greška pri čitanju CSV datoteke: {error}")
-        sys.exit(1)
+                row = {
+                    str(key).strip().lower(): (
+                        value.strip()
+                        if isinstance(value, str)
+                        else value
+                    )
+                    for key, value in raw_row.items()
+                    if key
+                }
+
+                for column in NUMERIC_COLUMNS:
+                    row[column] = parse_number(
+                        row.get(column)
+                    )
+
+                row["datum_parsed"] = parse_date(
+                    row.get("datum")
+                )
+
+                row["tip_objave"] = str(
+                    row.get("tip_objave") or ""
+                ).strip()
+
+                row["hashtagovi"] = str(
+                    row.get("hashtagovi") or ""
+                ).strip()
+
+                row["_row_number"] = row_number
+
+                rows.append(row)
+
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            "CSV nije moguće pročitati kao UTF-8 datoteku."
+        ) from exc
+
+    except csv.Error as exc:
+        raise ValueError(
+            f"Greška pri čitanju CSV datoteke: {exc}"
+        ) from exc
 
     if not rows:
-        print("⚠️ CSV datoteka ne sadrži podatke.")
-        return []
+        raise ValueError(
+            "CSV datoteka ne sadrži podatke."
+        )
 
     return rows
 
 
-# --------------------------------------------------
-# ANALIZA PODATAKA
-# --------------------------------------------------
+# ============================================================
+# KVALITETA PODATAKA
+# ============================================================
 
-def analyze(rows):
-    """Analizira metrike i vraća rezultate."""
+def analyze_data_quality(rows):
+    """Provjerava kvalitetu podataka."""
 
-    if not rows:
-        return None
-
-    metrics = {
-        "ukupno_objava": len(rows),
-        "lajkovi": [],
-        "komentari": [],
-        "saves": [],
-        "doseg": [],
-        "interakcije": [],
-        "hashtagovi": Counter(),
-        "po_tipu": defaultdict(list),
-        "po_danu": defaultdict(list),
-        "neispravni_datumi": 0,
-        "objave_bez_dosega": 0,
+    result = {
+        "total_rows": len(rows),
+        "invalid_dates": 0,
+        "missing_types": 0,
+        "missing_metrics": 0,
+        "negative_values": 0,
+        "zero_reach": 0,
+        "missing_reach": 0,
+        "quality_issues": 0,
     }
 
     for row in rows:
 
-        lajkovi = parse_number(row.get("lajkovi"))
-        komentari = parse_number(row.get("komentari"))
-        saves = parse_number(row.get("saves"))
-        doseg = parse_number(row.get("doseg"))
+        date = row.get("datum_parsed")
 
-        # Nedostajuće vrijednosti ne računamo kao nule.
-        metrics["lajkovi"].append(lajkovi)
-        metrics["komentari"].append(komentari)
-        metrics["saves"].append(saves)
-        metrics["doseg"].append(doseg)
+        if date is None:
+            date = parse_date(row.get("datum"))
 
-        # Engagement rate.
-        if doseg is not None and doseg > 0:
-            interaction_values = [
-                value for value in [lajkovi, komentari, saves]
-                if value is not None
-            ]
+        if date is None:
+            result["invalid_dates"] += 1
 
-            if interaction_values:
-                engagement = (
-                    sum(interaction_values) / doseg * 100
-                )
-                metrics["interakcije"].append(engagement)
-            else:
-                engagement = None
-        else:
-            engagement = None
-            metrics["objave_bez_dosega"] += 1
+        if not row.get("tip_objave"):
+            result["missing_types"] += 1
 
-        # Tip objave.
-        tip = (
-            row.get("tip_objave") or "Nepoznato"
-        ).strip()
+        for column in NUMERIC_COLUMNS:
 
-        metrics["po_tipu"][tip].append({
-            "lajkovi": lajkovi,
-            "komentari": komentari,
-            "saves": saves,
-            "doseg": doseg,
-            "engagement": engagement,
-        })
+            value = parse_number(row.get(column))
 
-        # Dan objavljivanja.
-        datum = parse_date(row.get("datum"))
+            if value is None:
+                result["missing_metrics"] += 1
 
-        if datum:
-            dan = DAYS_HR[datum.weekday()]
+                if column == "doseg":
+                    result["missing_reach"] += 1
 
-            metrics["po_danu"][dan].append({
-                "lajkovi": lajkovi,
-                "komentari": komentari,
-                "saves": saves,
-                "doseg": doseg,
-                "engagement": engagement,
-            })
-        else:
-            metrics["neispravni_datumi"] += 1
+            elif value < 0:
+                result["negative_values"] += 1
 
-        # Hashtagovi.
-        hashtags = row.get("hashtagovi") or ""
+        reach = parse_number(row.get("doseg"))
 
-        for tag in re.findall(r"#[\wčćžšđČĆŽŠĐ]+", hashtags):
-            metrics["hashtagovi"][tag.lower()] += 1
+        if reach == 0:
+            result["zero_reach"] += 1
 
-    return metrics
+    result["quality_issues"] = (
+        result["invalid_dates"]
+        + result["missing_types"]
+        + result["missing_metrics"]
+        + result["negative_values"]
+    )
+
+    return result
 
 
-# --------------------------------------------------
-# ANALIZA PO GRUPAMA
-# --------------------------------------------------
+# ============================================================
+# ENGAGEMENT RATE
+# ============================================================
 
-def group_average(data, field):
-    """Računa prosjek određene metrike unutar grupe."""
+def calculate_engagement(row):
+    """Izračun engagement ratea jedne objave."""
 
-    values = [item[field] for item in data]
+    likes = parse_number(row.get("lajkovi"))
+    comments = parse_number(row.get("komentari"))
+    saves = parse_number(row.get("saves"))
+    reach = parse_number(row.get("doseg"))
 
-    return average(values)
+    if reach is None or reach <= 0:
+        return None
+
+    values = (likes, comments, saves)
+
+    if any(
+        value is not None and value < 0
+        for value in values
+    ):
+        return None
+
+    likes = likes or 0
+    comments = comments or 0
+    saves = saves or 0
+
+    return safe_percentage(
+        likes + comments + saves,
+        reach
+    )
 
 
-def best_group(groups, field):
+# ============================================================
+# GRUPIRANJE
+# ============================================================
+
+def group_average(groups, metric=None):
+    """Izračun prosjeka po grupama."""
+
+    result = {}
+
+    for key, values in groups.items():
+
+        if metric is not None:
+            if not isinstance(values, dict):
+                continue
+
+            values = values.get(metric, [])
+
+        elif isinstance(values, dict):
+            values = values.get("engagement", [])
+
+        result[key] = average(values)
+
+    return result
+
+
+def best_group(groups, metric=None):
     """Pronalazi grupu s najboljim prosjekom."""
 
-    results = {}
+    averages = group_average(groups, metric)
 
-    for name, data in groups.items():
-        result = group_average(data, field)
+    valid = {
+        key: value
+        for key, value in averages.items()
+        if value is not None
+    }
 
-        if result is not None:
-            results[name] = result
-
-    if not results:
+    if not valid:
         return None, None
 
-    best_name = max(results, key=results.get)
-
-    return best_name, results[best_name]
-
-
-# --------------------------------------------------
-# GENERIRANJE IZVJEŠTAJA
-# --------------------------------------------------
-
-def generate_report(metrics):
-    """Generira tekstualni izvještaj."""
-
-    if not metrics:
-        return "Nema podataka za analizu."
-
-    lines = []
-
-    def add(text=""):
-        lines.append(text)
-
-    add("=" * 60)
-    add("DIDA BOŽA – ANALIZA INSTAGRAM METRIKA")
-    add("=" * 60)
-
-    add(f"\nUkupno analiziranih objava: {metrics['ukupno_objava']}")
-
-    # Prosjeci.
-    add("\n--- PROSJEČNE VRIJEDNOSTI PO OBJAVI ---")
-
-    for label, key in [
-        ("Lajkovi", "lajkovi"),
-        ("Komentari", "komentari"),
-        ("Spremanja (saves)", "saves"),
-        ("Doseg", "doseg"),
-    ]:
-        add(
-            f"{label:25}: "
-            f"{format_average(average(metrics[key]))}"
-        )
-
-    add(
-        f"{'Engagement rate':25}: "
-        f"{format_average(average(metrics['interakcije']), 2)}%"
-        if metrics["interakcije"]
-        else "Engagement rate: N/A (nema dovoljno podataka o dosegu)"
+    best = max(
+        valid,
+        key=valid.get
     )
 
-    # Tip objave.
-    add("\n--- REZULTATI PO TIPU OBJAVE ---")
+    return best, valid[best]
 
-    for tip, data in metrics["po_tipu"].items():
 
-        add(f"\n{tip.upper()}")
+# ============================================================
+# GLAVNA ANALIZA
+# ============================================================
 
-        add(
-            f"  Prosjek lajkova: "
-            f"{format_average(group_average(data, 'lajkovi'))}"
+def analyze(rows):
+    """Analizira objave i vraća strukturirane rezultate."""
+
+    if not rows:
+        raise ValueError(
+            "Nema podataka za analizu."
         )
 
-        add(
-            f"  Prosjek komentara: "
-            f"{format_average(group_average(data, 'komentari'))}"
+    rows = [dict(row) for row in rows]
+
+    for row in rows:
+
+        for column in NUMERIC_COLUMNS:
+            row[column] = parse_number(
+                row.get(column)
+            )
+
+        if row.get("datum_parsed") is None:
+            row["datum_parsed"] = parse_date(
+                row.get("datum")
+            )
+
+    by_type = defaultdict(list)
+    by_weekday = defaultdict(list)
+    hashtags = Counter()
+
+    engagement_rates = []
+    invalid_dates = 0
+    zero_reach = 0
+
+    total_engagement = 0
+    total_reach = 0
+
+    # Osnovne numeričke metrike.
+    metric_values = {
+        column: [
+            row.get(column)
+            for row in rows
+        ]
+        for column in NUMERIC_COLUMNS
+    }
+
+    averages = {
+        column: average(values)
+        for column, values in metric_values.items()
+    }
+
+    # Analiza pojedinačnih objava.
+    for row in rows:
+
+        engagement = calculate_engagement(row)
+
+        row["engagement_rate"] = engagement
+
+        if engagement is not None:
+
+            engagement_rates.append(engagement)
+
+            total_engagement += (
+                (row.get("lajkovi") or 0)
+                + (row.get("komentari") or 0)
+                + (row.get("saves") or 0)
+            )
+
+            total_reach += row["doseg"]
+
+        # Datum i dan u tjednu.
+        date = row.get("datum_parsed")
+
+        if date is None:
+            invalid_dates += 1
+        else:
+            weekday = date.strftime("%A")
+            by_weekday[weekday].append(engagement)
+
+        # Objave bez dosega.
+        if row.get("doseg") == 0:
+            zero_reach += 1
+
+        # Tip objave.
+        post_type = normalize_text(
+            row.get("tip_objave")
         )
 
-        add(
-            f"  Prosjek spremanja: "
-            f"{format_average(group_average(data, 'saves'))}"
+        if post_type and engagement is not None:
+            by_type[post_type].append(engagement)
+
+        # Hashtagovi.
+        found_hashtags = re.findall(
+            r"#[\wčćžšđČĆŽŠĐ]+",
+            row.get("hashtagovi", ""),
+            flags=re.UNICODE
         )
 
-        add(
-            f"  Prosjek dosega: "
-            f"{format_average(group_average(data, 'doseg'))}"
+        for hashtag in found_hashtags:
+            hashtags[hashtag.lower()] += 1
+
+    average_er = average(engagement_rates)
+
+    weighted_er = safe_percentage(
+        total_engagement,
+        total_reach
+    )
+
+    data_quality = analyze_data_quality(rows)
+
+    # Strukturirani rezultati prema tipu objave.
+    # Ovaj format omogućuje best_group(po_tipu, "engagement").
+    po_tipu = {
+        name: {
+            "engagement": values
+        }
+        for name, values in by_type.items()
+    }
+
+    result = {
+        # Izvorni engleski ključevi.
+        "total_posts": len(rows),
+        "averages": averages,
+        "engagement_rates": engagement_rates,
+        "average_engagement_rate": average_er,
+        "weighted_engagement_rate": weighted_er,
+        "total_engagement": total_engagement,
+        "total_reach": total_reach,
+        "by_type": dict(by_type),
+        "by_weekday": dict(by_weekday),
+        "hashtags": hashtags,
+        "invalid_dates": invalid_dates,
+        "zero_reach": zero_reach,
+        "data_quality": data_quality,
+
+        # Kompatibilnost s hrvatskim ključevima.
+        "ukupno_objava": len(rows),
+        "lajkovi": metric_values["lajkovi"],
+        "komentari": metric_values["komentari"],
+        "saves": metric_values["saves"],
+        "doseg": metric_values["doseg"],
+        "interakcije": engagement_rates,
+        "po_tipu": po_tipu,
+        "hashtagovi": hashtags,
+        "neispravni_datumi": invalid_dates,
+        "objave_bez_dosega": zero_reach,
+    }
+
+    return result
+
+
+# ============================================================
+# AUTOMATSKE PREPORUKE
+# ============================================================
+
+def generate_recommendations(result):
+    """Generira preporuke na temelju analize."""
+
+    recommendations = []
+
+    if result["total_posts"] < MIN_SAMPLE_SIZE:
+
+        recommendations.append(
+            f"Uzorak je malen. Prikupite najmanje "
+            f"{MIN_SAMPLE_SIZE} objava prije donošenja "
+            "čvrstih zaključaka."
         )
 
-        engagement = group_average(data, "engagement")
+    average_er = result["average_engagement_rate"]
+    weighted_er = result["weighted_engagement_rate"]
 
-        add(
-            f"  Engagement rate: "
-            f"{format_average(engagement, 2)}%"
-            if engagement is not None
-            else "  Engagement rate: N/A"
-        )
+    if average_er is not None and weighted_er is not None:
 
-    # Najuspješniji tip.
+        if weighted_er > average_er:
+
+            recommendations.append(
+                "Ponderirani ER veći je od prosječnog ER-a "
+                "po objavi. Objave s većim dosegom relativno "
+                "dobro doprinose ukupnom angažmanu."
+            )
+
+        elif weighted_er < average_er:
+
+            recommendations.append(
+                "Ponderirani ER niži je od prosječnog ER-a "
+                "po objavi. Provjerite rezultate objava "
+                "s najvećim dosegom."
+            )
+
     best_type, best_type_value = best_group(
-        metrics["po_tipu"], "engagement"
+        result["by_type"]
     )
 
-    if best_type:
-        add(
-            f"\nNajbolji tip prema engagement rateu: "
-            f"{best_type} ({best_type_value:.2f}%)"
-        )
-    else:
-        add(
-            "\nNajbolji tip prema engagement rateu: "
-            "Nije moguće odrediti bez podataka o dosegu."
-        )
+    if best_type is not None:
 
-    # Dan objavljivanja.
-    add("\n--- REZULTATI PO DANU OBJAVLJIVANJA ---")
-
-    for dan, data in metrics["po_danu"].items():
-
-        engagement = group_average(data, "engagement")
-
-        add(
-            f"{dan}: "
-            f"{len(data)} objava, "
-            f"prosječni engagement: "
-            f"{format_average(engagement, 2)}%"
+        recommendations.append(
+            f"Najbolji tip objave u ovom uzorku je "
+            f"'{best_type}' s prosječnim ER-om "
+            f"{best_type_value:.2f}%."
         )
 
     best_day, best_day_value = best_group(
-        metrics["po_danu"], "engagement"
+        result["by_weekday"]
     )
 
-    if best_day:
-        add(
-            f"\nNajbolji dan prema engagement rateu: "
-            f"{best_day} ({best_day_value:.2f}%)"
+    if best_day is not None:
+
+        recommendations.append(
+            f"Najbolji dan u analiziranom uzorku je "
+            f"{best_day} ({best_day_value:.2f}% ER)."
         )
+
+    if result["data_quality"]["quality_issues"] > 0:
+
+        recommendations.append(
+            "Prije donošenja zaključaka provjerite kvalitetu "
+            "podataka i ispravite nedostajuće ili neispravne vrijednosti."
+        )
+
+    if not recommendations:
+
+        recommendations.append(
+            "Nema dovoljno podataka za specifične preporuke."
+        )
+
+    return recommendations
+
+
+# ============================================================
+# IZVJEŠTAJ
+# ============================================================
+
+def generate_report(result):
+    """Generira tekstualni izvještaj."""
+
+    lines = []
+
+    lines.append("=" * 65)
+    lines.append("DIDA BOŽA — INSTAGRAM ANALYTICS REPORT")
+    lines.append("=" * 65)
+
+    lines.append(
+        f"\nUkupno analiziranih objava: {result['total_posts']}"
+    )
+
+    # Osnovne metrike.
+    lines.append("\n1. PROSJEČNE METRIKE")
+    lines.append("-" * 45)
+
+    labels = {
+        "lajkovi": "Prosječno lajkova",
+        "komentari": "Prosječno komentara",
+        "saves": "Prosječno spremanja",
+        "doseg": "Prosječni doseg",
+    }
+
+    for key, label in labels.items():
+
+        value = result["averages"].get(key)
+
+        lines.append(
+            f"{label}: {format_average(value, 2)}"
+        )
+
+    # Engagement.
+    lines.append("\n2. ENGAGEMENT RATE")
+    lines.append("-" * 45)
+
+    lines.append(
+        "Prosječni ER po objavi: "
+        + format_average(
+            result["average_engagement_rate"], 2
+        )
+        + "%"
+    )
+
+    lines.append(
+        "Ponderirani ER: "
+        + format_average(
+            result["weighted_engagement_rate"], 2
+        )
+        + "%"
+    )
+
+    lines.append(
+        f"Ukupni angažman: {result['total_engagement']}"
+    )
+
+    lines.append(
+        f"Ukupni doseg: {result['total_reach']}"
+    )
+
+    # Tip objave.
+    lines.append("\n3. REZULTATI PREMA TIPU OBJAVE")
+    lines.append("-" * 45)
+
+    type_averages = group_average(
+        result["by_type"]
+    )
+
+    if type_averages:
+
+        for name, value in sorted(
+            type_averages.items(),
+            key=lambda item: (
+                item[1] is not None,
+                item[1] if item[1] is not None else -1
+            ),
+            reverse=True
+        ):
+
+            lines.append(
+                f"{name.upper()}: {format_average(value, 2)}%"
+            )
+
     else:
-        add(
-            "\nNajbolji dan: Nije moguće odrediti "
-            "bez podataka o dosegu."
+        lines.append("Nema dostupnih podataka.")
+
+    best_type, best_type_value = best_group(
+        result["by_type"]
+    )
+
+    if best_type is not None:
+
+        lines.append(
+            f"\nNajuspješniji tip objave: "
+            f"{best_type.upper()} ({best_type_value:.2f}%)"
         )
+
+    # Dan u tjednu.
+    lines.append("\n4. REZULTATI PREMA DANU")
+    lines.append("-" * 45)
+
+    weekday_averages = group_average(
+        result["by_weekday"]
+    )
+
+    if weekday_averages:
+
+        for name, value in sorted(
+            weekday_averages.items(),
+            key=lambda item: (
+                item[1] is not None,
+                item[1] if item[1] is not None else -1
+            ),
+            reverse=True
+        ):
+
+            lines.append(
+                f"{name}: {format_average(value, 2)}%"
+            )
+
+    else:
+        lines.append("Nema dostupnih podataka.")
 
     # Hashtagovi.
-    add("\n--- NAJČEŠĆI HASHTAGOVI ---")
+    lines.append("\n5. HASHTAGOVI")
+    lines.append("-" * 45)
 
-    if metrics["hashtagovi"]:
-        for tag, count in metrics["hashtagovi"].most_common(10):
-            add(f"{tag}: {count} puta")
+    if result["hashtags"]:
+
+        for hashtag, count in result["hashtags"].most_common(10):
+            lines.append(
+                f"{hashtag}: {count}"
+            )
+
     else:
-        add("Nema dostupnih hashtagova.")
+        lines.append("Nema pronađenih hashtagova.")
 
-    # Preporuke.
-    add("\n--- PREPORUKE ZA SLJEDEĆI CIKLUS ---")
+    # Kvaliteta podataka.
+    quality = result["data_quality"]
 
-    if metrics["ukupno_objava"] < 5:
-        add(
-            "• Uzorak je malen. Prikupi više objava "
-            "prije donošenja čvrstih zaključaka."
-        )
+    lines.append("\n6. KVALITETA PODATAKA")
+    lines.append("-" * 45)
 
-    if best_type:
-        add(
-            f"• Dodatno testiraj format '{best_type}', "
-            "koji je u ovom uzorku imao najbolji engagement rate."
-        )
-
-    if best_day:
-        add(
-            f"• Razmotri dodatno testiranje objava "
-            f"na dan {best_day}."
-        )
-
-    if not metrics["interakcije"]:
-        add(
-            "• Unesi podatke o dosegu kako bi se mogao "
-            "izračunati engagement rate."
-        )
-
-    if metrics["neispravni_datumi"]:
-        add(
-            f"• {metrics['neispravni_datumi']} datuma nije "
-            "prepoznato. Provjeri format datuma u CSV-u."
-        )
-
-    if metrics["objave_bez_dosega"]:
-        add(
-            f"• {metrics['objave_bez_dosega']} objava nema "
-            "valjan podatak o dosegu."
-        )
-
-    add(
-        "\nNapomena: Rezultati opisuju samo unesene podatke. "
-        "Ne predstavljaju univerzalne benchmarke."
+    lines.append(
+        f"Neispravni datumi: {quality['invalid_dates']}"
     )
 
-    add("\n" + "=" * 60)
-    add("Kraj izvještaja")
-    add("=" * 60)
+    lines.append(
+        f"Nedostajući tipovi objava: {quality['missing_types']}"
+    )
+
+    lines.append(
+        f"Nedostajuće numeričke vrijednosti: "
+        f"{quality['missing_metrics']}"
+    )
+
+    lines.append(
+        f"Negativne vrijednosti: {quality['negative_values']}"
+    )
+
+    lines.append(
+        f"Nedostajući doseg: {quality['missing_reach']}"
+    )
+
+    lines.append(
+        f"Objave s dosegom 0: {quality['zero_reach']}"
+    )
+
+    # Preporuke.
+    lines.append("\n7. PREPORUKE")
+    lines.append("-" * 45)
+
+    recommendations = generate_recommendations(
+        result
+    )
+
+    for index, recommendation in enumerate(
+        recommendations,
+        start=1
+    ):
+
+        lines.append(
+            f"{index}. {recommendation}"
+        )
+
+    lines.append("\n" + "=" * 65)
+
+    lines.append(
+        "Napomena: Engagement rate izračunat je kao "
+        "(lajkovi + komentari + spremanja) / doseg × 100."
+    )
+
+    lines.append(
+        "Rezultati opisuju isključivo podatke iz učitane CSV datoteke."
+    )
+
+    lines.append("=" * 65)
 
     return "\n".join(lines)
 
 
-# --------------------------------------------------
-# ISPIS I SPREMANJE
-# --------------------------------------------------
+# ============================================================
+# SPREMANJE IZVJEŠTAJA
+# ============================================================
 
-def save_report(report):
-    """Sprema izvještaj u output mapu."""
+def save_report(report, path=None):
+    """Sprema izvještaj u TXT datoteku."""
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-    try:
-        REPORT_FILE.write_text(report, encoding="utf-8")
-        print(f"\n✅ Izvještaj spremljen: {REPORT_FILE}")
+    if path is None:
 
-    except OSError as error:
-        print(f"\n❌ Greška pri spremanju izvještaja: {error}")
+        timestamp = datetime.now().strftime(
+            "%Y%m%d_%H%M%S"
+        )
+
+        path = OUTPUT_DIR / (
+            f"instagram_report_{timestamp}.txt"
+        )
+
+    path = Path(path)
+
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    path.write_text(
+        report,
+        encoding="utf-8"
+    )
+
+    return path
 
 
-# --------------------------------------------------
-# GLAVNA FUNKCIJA
-# --------------------------------------------------
+# ============================================================
+# CLI
+# ============================================================
 
 def main():
 
-    if len(sys.argv) > 2:
-        print("Korištenje: python analyze_metrics.py [datoteka.csv]")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="Dida Boža — napredna Instagram analiza"
+    )
 
-    if len(sys.argv) == 2:
-        path = Path(sys.argv[1])
+    parser.add_argument(
+        "--file",
+        default=str(DEFAULT_METRICS_FILE),
+        help="Putanja do CSV datoteke"
+    )
 
-        if not path.is_absolute():
-            path = BASE_DIR / path
-    else:
-        path = DEFAULT_CSV
+    parser.add_argument(
+        "--output",
+        help="Putanja za spremanje izvještaja"
+    )
 
-    # Ako glavna datoteka ne postoji, koristi predložak.
-    if not path.exists() and TEMPLATE_CSV.exists():
+    parser.add_argument(
+        "--no-save",
+        action="store_true",
+        help="Prikaži izvještaj bez spremanja"
+    )
+
+    args = parser.parse_args()
+
+    try:
+
+        rows = load_metrics(args.file)
+
+        result = analyze(rows)
+
+        report = generate_report(result)
+
+        print(report)
+
+        if not args.no_save:
+
+            path = save_report(
+                report,
+                args.output
+            )
+
+            print(
+                f"\nIzvještaj spremljen: {path}"
+            )
+
+    except (FileNotFoundError, ValueError) as exc:
+
         print(
-            f"⚠️ {path.name} ne postoji. "
-            "Koristim metrics_template.csv kao primjer.\n"
+            f"\nGREŠKA: {exc}",
+            file=sys.stderr
         )
-        path = TEMPLATE_CSV
 
-    print("\n🚀 Dida Boža – Instagram Analytics")
-    print("=" * 45)
-
-    rows = load_metrics(path)
-
-    print(f"📂 Učitana datoteka: {path.name}")
-    print(f"📊 Broj redaka: {len(rows)}")
-
-    metrics = analyze(rows)
-
-    report = generate_report(metrics)
-
-    print("\n" + report)
-
-    save_report(report)
-
-    print("\n✅ Analiza završena.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
