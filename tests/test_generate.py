@@ -1,72 +1,79 @@
+
 """
-Testovi za generate_content.py i make_carousel.py.
+Testovi za besplatni Dida Boža AI pipeline.
 
 Pokretanje:
-    pip install pytest
     pytest tests/ -v
 """
 
-import os
 import sys
-import tempfile
+from pathlib import Path
+
 import pytest
 
-# Dodaj root u path da možemo importati module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Omogućuje import modula iz glavnog direktorija projekta.
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
 
-from generate_content import get_mock_content, save_content
-
-
-def test_get_mock_content_returns_three_posts():
-    """get_mock_content() mora vratiti tri objave s ispravnom strukturom."""
-    content = get_mock_content()
-    assert "OBJAVA 1" in content
-    assert "OBJAVA 2" in content
-    assert "OBJAVA 3" in content
-    # Svaka objava mora imati vizualni prompt, tekst i hashtagove
-    assert content.count("Vizualni prompt:") == 3
-    assert content.count("Tekst objave:") == 3
-    assert content.count("Hashtagovi:") == 3
+from generate_content import build_prompt, load_brand_voice
 
 
-def test_get_mock_content_has_croatian_characters():
-    """Mock sadržaj mora sadržavati hrvatske znakove i emoji."""
-    content = get_mock_content()
-    assert "Boža" in content
-    assert "džem" in content
-    assert "🍯" in content or "🧀" in content
+def test_build_prompt_contains_three_post_requirements():
+    """Prompt mora tražiti tri Instagram objave."""
+    prompt = build_prompt()
+
+    assert "OBJAVA 1" in prompt
+    assert "OBJAVA 2" in prompt
+    assert "OBJAVA 3" in prompt
+    assert "Dida Boža" in prompt
 
 
-def test_generate_with_api_signature():
-    """generate_with_api mora prihvatiti sve parametre (bez poziva API-ja)."""
-    from generate_content import generate_with_api
-    import inspect
+def test_build_prompt_contains_required_sections():
+    """Prompt mora definirati strukturu objava."""
+    prompt = build_prompt()
 
-    sig = inspect.signature(generate_with_api)
-    params = list(sig.parameters.keys())
-    assert "client" in params
-    assert "proizvod" in params
-    assert "cilj" in params
-    assert "ton" in params
-    assert "publika" in params
-    assert "web_stranica" in params
-    assert "inspiracija" in params
+    assert "Vizualni prompt" in prompt
+    assert "Tekst objave" in prompt
+    assert "Hashtagovi" in prompt
 
 
-def test_save_content_creates_file():
-    """save_content mora spremiti datoteku u output/."""
-    test_content = "TEST OBJAVA\nOvo je test."
-    save_content(test_content)
+def test_build_prompt_supports_custom_topic():
+    """Prompt mora prihvatiti zadanu temu."""
+    prompt = build_prompt(topic="Mediteranski doručak")
 
-    assert os.path.exists("output/generirani_sadrzaj.txt")
-    with open("output/generirani_sadrzaj.txt", "r", encoding="utf-8") as f:
-        saved = f.read()
-    assert saved == test_content
+    assert "Mediteranski doručak" in prompt
 
-    # Cleanup
-    os.remove("output/generirani_sadrzaj.txt")
+
+def test_build_prompt_does_not_require_api():
+    """Generiranje prompta ne smije zahtijevati API ključ."""
+    prompt = build_prompt()
+
+    assert isinstance(prompt, str)
+    assert len(prompt) > 100
+    assert "OpenAI API ključ" not in prompt
+
+
+def test_load_brand_voice_returns_string():
+    """Učitavanje tona brenda mora vratiti tekst."""
+    content = load_brand_voice()
+
+    assert isinstance(content, str)
+
+
+def test_load_brand_voice_missing_file(tmp_path):
+    """Nepostojeća datoteka s primjerima mora vratiti prazan tekst."""
+    missing_file = tmp_path / "nepostojeci_primjeri.txt"
+
+    content = load_brand_voice(missing_file)
+
+    assert content == ""
 
 
 def test_make_carousel_script_exists():
-    """make_carousel.py mora postojati u rootu."""
-    assert os.path.exists("make_carousel.py")
+    """Skripta za izradu carousela mora postojati."""
+    assert (BASE_DIR / "make_carousel.py").exists()
+
+
+def test_run_all_script_exists():
+    """Glavna pipeline skripta mora postojati."""
+    assert (BASE_DIR / "run_all.py").exists()

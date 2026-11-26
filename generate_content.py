@@ -1,190 +1,197 @@
-import os
-import sys
-from openai import OpenAI
-from dotenv import load_dotenv
 
-# Učitava varijable iz .env datoteke
-load_dotenv()
+"""
+DIDA BOŽA — AI CONTENT GENERATOR
+
+Besplatna verzija:
+- Priprema prompt za ChatGPT
+- Učitava primjere tona brenda
+- Omogućuje ručno spremanje AI sadržaja
+- Ne koristi API
+"""
+
+import argparse
+from pathlib import Path
+from datetime import datetime
+
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "output"
+
+EXAMPLES_FILE = BASE_DIR / "brand_voice_examples.txt"
+PROMPT_FILE = OUTPUT_DIR / "prompt_za_chatgpt.txt"
+CONTENT_FILE = OUTPUT_DIR / "generirani_sadrzaj.txt"
+
+MAX_BRAND_VOICE_CHARS = 9000
 
 
-def load_brand_voice(path="brand_voice_examples.txt"):
-    """
-    Učitava primjere brenda iz datoteke (few-shot kontekst).
-    Ako datoteka ne postoji, vraća prazan string.
-    """
-    if not os.path.exists(path):
+def load_brand_voice(path=EXAMPLES_FILE):
+    """Učitava primjere komunikacije brenda."""
+    path = Path(path)
+
+    if not path.exists():
+        print("Nema datoteke s primjerima tona brenda.")
         return ""
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-    # Ograniči na prvih 4000 znakova da ne trošimo previše tokena
-    return content[:4000]
+
+    text = path.read_text(encoding="utf-8")
+    return text[:MAX_BRAND_VOICE_CHARS]
 
 
-def generate_with_api(
-    client,
-    proizvod="Ekološki džem od smokve 240 g",
-    cilj="Interakcija, edukacija i emocionalna povezanost",
-    ton="Topao i nostalgičan",
-    publika="Foodie scena, ljubitelji prirodnih proizvoda, Slow Living",
-    web_stranica="",
-    inspiracija="",
-):
-    """
-    Generira sadržaj za tri Instagram objave koristeći OpenAI API.
-    Ako postoji brand_voice_examples.txt, koristi ga kao few-shot kontekst.
-    """
-    dodatni_kontekst = ""
-    if web_stranica:
-        dodatni_kontekst += f"\n    Web stranica brenda: {web_stranica}"
-    if inspiracija:
-        dodatni_kontekst += f"\n    Inspiracija / uzor: {inspiracija}"
+def build_prompt(brand_voice="", topic=None):
+    """Priprema prompt za ručno korištenje u ChatGPT-u."""
 
-    # Few-shot: učitaj primjere brenda ako postoje
-    brand_voice = load_brand_voice()
-    few_shot = ""
-    if brand_voice:
-        few_shot = f"""
-
-    Evo primjera stvarnih objava brenda (uči ton, stil i strukturu):
-    {brand_voice}
-
-    Koristi sličan ton i strukturu, ali NE kopiraj tekstove.
-    """
+    topic_text = topic or "Mediteranski proizvodi i način života"
 
     prompt = f"""
-    Ti si vrhunski stručnjak za društvene mreže i vizualni identitet brenda Dida Boža.
-    Tvoj zadatak je generirati sadržaj za 3 Instagram objave.
+TI SI: Iskusni stručnjak za Instagram marketing i copywriting.
 
-    Brend: Dida Boža (ekološki džemovi, Dalmacija, tradicija, topao i nostalgičan ton).
-    Publika: {publika}
-    Proizvod u fokusu: {proizvod}
-    Cilj: {cilj}
-    Ton: {ton}{dodatni_kontekst}{few_shot}
+BREND: Dida Boža
 
-    Vrati odgovor točno u ovom formatu (svako polje u vlastitom retku,
-    s praznim redom između objava):
+ZADATAK:
+Izradi tri originalne Instagram objave za brend Dida Boža.
 
-    --- OBJAVA 1: STATIČNA SLIKA (Interakcija) ---
-    Vizualni prompt: [Vizualni prompt na engleskom za DALL-E 3]
-    Tekst objave: [Tekst na hrvatskom s pitanjem publici]
-    Hashtagovi: [5-8 hashtagova]
+TEMA:
+{topic_text}
 
-    --- OBJAVA 2: STATIČNA SLIKA (Edukacija i prikaz proizvoda) ---
-    Vizualni prompt: [Vizualni prompt na engleskom]
-    Ljudska dorada: [Uputa kako u Canvi ubaciti stvarnu staklenku Dida Boža]
-    Tekst objave: [Tekst na hrvatskom]
-    Hashtagovi: [5-8 hashtagova]
+TON KOMUNIKACIJE:
+Topao, autentičan, mediteranski, prijateljski i prirodan.
 
-    --- OBJAVA 3: STATIČNA SLIKA (Emocionalna povezanost) ---
-    Vizualni prompt: [Vizualni prompt na engleskom]
-    Tekst objave: [Tekst na hrvatskom]
-    Hashtagovi: [5-8 hashtagova]
-    """
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "Ti si vrhunski AI stručnjak za marketing."},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.7,
-    )
-    return response.choices[0].message.content
+PRIMJERI KOMUNIKACIJE BRENDA:
+{brand_voice if brand_voice else "Nisu dostupni dodatni primjeri."}
 
+ZA SVAKU OBJAVU NAVEDI:
 
-def generate_image(client, prompt, size="1024x1024", quality="standard"):
-    """
-    Generira jednu sliku pomoću DALL-E 3 i vraća URL.
-    """
-    response = client.images.generate(
-        model="dall-e-3",
-        prompt=prompt,
-        size=size,
-        quality=quality,
-        n=1,
-    )
-    return response.data[0].url
+1. Naslov objave
+2. Tekst objave
+3. Vizualni prompt
+4. Poziv na akciju (CTA)
+5. Hashtagove
 
+VAŽNA PRAVILA:
+- Napiši tri različite objave.
+- Koristi prirodan hrvatski jezik.
+- Nemoj kopirati postojeće objave.
+- Ne izmišljaj sastav, certifikate ili zdravstvene učinke proizvoda.
+- Vizualni prompt mora biti dovoljno detaljan za izradu slike.
+- Prilagodi sadržaj Instagram publici.
 
-def generate_carousel_images(client, base_prompt, num_slides=4):
-    """
-    Generira više slika za karusel. Svaka slika je varijacija iste teme.
-    """
-    prompts = [
-        f"{base_prompt}, wide shot showing the full scene",
-        f"{base_prompt}, close-up detail of the product",
-        f"{base_prompt}, overhead flat lay composition",
-        f"{base_prompt}, lifestyle shot with hands holding the product",
-    ]
-    prompts = prompts[:num_slides]
-    urls = []
-    for p in prompts:
-        url = generate_image(client, p)
-        urls.append(url)
-    return urls
+FORMAT:
+
+OBJAVA 1
+Tekst objave:
+Vizualni prompt:
+CTA:
+Hashtagovi:
+
+OBJAVA 2
+Tekst objave:
+Vizualni prompt:
+CTA:
+Hashtagovi:
+
+OBJAVA 3
+Tekst objave:
+Vizualni prompt:
+CTA:
+Hashtagovi:
+"""
+
+    return prompt.strip()
 
 
-def get_mock_content():
-    """Primjer izlaza za --dry-run (bez API poziva)."""
-    return """--- OBJAVA 1: STATIČNA SLIKA (Interakcija) ---
-Vizualni prompt: "Close-up macro shot of ripe, dark purple figs on a branch, golden hour light, bokeh stone wall, no text, no people. --ar 4:5"
-
-Tekst objave: Slatko susreće slano. 🧀🍯 Jeste li ikada probali smokvu uz sir? Ta mala promjena donosi potpuno novo iskustvo za stolom. Dida Boža džem od smokve savršeno se slaže s kremastim sirom na kriški domaćeg kruha. Ako ste ljubitelj ovakvih kombinacija, napišite nam u komentarima - koji je vaš omiljeni sir uz smokvu? 👇
-
-Hashtagovi: #DidaBoza #Smokva #SlatkoSlano #Dalmacija #Gourmet #FoodieCroatia
+def save_file(path, content):
+    """Sprema tekstualnu datoteku."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    print(f"Datoteka spremljena: {path}")
 
 
---- OBJAVA 2: STATIČNA SLIKA (Edukacija i prikaz proizvoda) ---
-Vizualni prompt: "Golden-hour Mediterranean terrace scene with crusty sourdough topped with creamy cheese and glossy fig compote, fresh figs, jam bowl, olive branches, blurred stone village and sea. --ar 4:5"
+def save_generated_content():
+    """Omogućuje ručno spremanje sadržaja iz ChatGPT-a."""
 
-Ljudska dorada: U Canvi izrežite stvarnu staklenku Dida Boža, uklonite pozadinu, ubacite u kadar i dodajte meku sjenu.
+    print("\nZalijepi generirani sadržaj.")
+    print("Kada završiš, u novi red upiši GOTOVO.\n")
 
-Tekst objave: Mali mediteranski ritual. 🌿🌊 Smokva. Kruh. Malo Mediterana. Ponekad je za savršen užitak potrebno samo nekoliko pravih sastojaka i trenutak vremena za sebe. Spremite ovu objavu za svoj sljedeći brunch i uživajte u okusu Dalmacije. 📌
+    lines = []
 
-Hashtagovi: #DidaBoza #MediteranskiUgođaj #Brunch #SlowLiving #EkoDzem #HrvatskaHrana
+    while True:
+        try:
+            line = input()
+        except EOFError:
+            break
 
+        if line.strip().upper() == "GOTOVO":
+            break
 
---- OBJAVA 3: STATIČNA SLIKA (Emocionalna povezanost) ---
-Vizualni prompt: "Rustic wooden table setting in a Mediterranean courtyard, bowl of fig jam, fresh figs, walnuts, warm natural light, editorial food photography. --ar 4:5"
+        lines.append(line)
 
-Tekst objave: Okus koji usporava dan. ⏳✨ Mali ritual. Veliki užitak. Pronađite svoj omiljeni način posluživanja našeg ekološkog džema od smokve. Bilo da ga mažete na tost, dodajete u jogurt ili poslužujete uz sir – svaki zalogaj je podsjetnik na sunce i more. Označite osobu s kojom biste podijelili ovaj trenutak. 👇
+    content = "\n".join(lines).strip()
 
-Hashtagovi: #DidaBoza #Smokva #Tradicija #Uživanje #BreakfastIdeas #CroatianFood"""
+    if not content:
+        print("Nije unesen nikakav sadržaj.")
+        return False
 
+    save_file(CONTENT_FILE, content)
 
-def save_content(content):
-    os.makedirs("output", exist_ok=True)
-    with open("output/generirani_sadrzaj.txt", "w", encoding="utf-8") as f:
-        f.write(content)
-    print("✅ Sadržaj spremljen u mapu 'output/'.")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    archive_file = OUTPUT_DIR / f"sadrzaj_{timestamp}.txt"
+    save_file(archive_file, content)
+
+    return True
 
 
 def main():
-    use_dry_run = "--dry-run" in sys.argv
-    print("🚀 Pokrećem AI Recept za Dida Boža...\n")
+    parser = argparse.ArgumentParser(
+        description="Dida Boža — besplatna priprema AI sadržaja"
+    )
 
-    if use_dry_run:
-        print("ℹ️  Dry-run način: koristim primjer izlaza (bez API poziva).\n")
-        content = get_mock_content()
-    else:
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise ValueError(
-                "❌ OPENAI_API_KEY nije pronađen. Postavite ga u .env "
-                "datoteku ili pokrenite s --dry-run."
-            )
-        client = OpenAI(api_key=api_key)
+    parser.add_argument(
+        "--topic",
+        help="Tema Instagram objava"
+    )
 
-        # Provjeri postoji li brand voice datoteka
-        if os.path.exists("brand_voice_examples.txt"):
-            print("ℹ️  Korišten few-shot kontekst iz brand_voice_examples.txt\n")
-        else:
-            print("ℹ️  brand_voice_examples.txt nije pronađen — koristim samo smjernice.\n")
+    parser.add_argument(
+        "--examples-file",
+        default=str(EXAMPLES_FILE),
+        help="Putanja do primjera tona brenda"
+    )
 
-        content = generate_with_api(client)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Prikaži prompt bez spremanja"
+    )
 
-    save_content(content)
-    print("\n--- PREGLED (prvih 300 znakova) ---")
-    print(content[:300] + "\n[...]")
+    parser.add_argument(
+        "--save-content",
+        action="store_true",
+        help="Ručno spremanje sadržaja iz ChatGPT-a"
+    )
+
+    args = parser.parse_args()
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    if args.save_content:
+        save_generated_content()
+        return
+
+    print("Pripremam prompt bez API poziva...")
+
+    brand_voice = load_brand_voice(args.examples_file)
+    prompt = build_prompt(brand_voice, args.topic)
+
+    if args.dry_run:
+        print("\n" + "=" * 60)
+        print(prompt)
+        print("=" * 60)
+        return
+
+    save_file(PROMPT_FILE, prompt)
+
+    print("\nPrompt je spreman za ChatGPT.")
+    print("Otvori output/prompt_za_chatgpt.txt i kopiraj sadržaj.")
+    print("Nakon generiranja možeš spremiti rezultat naredbom:")
+    print("python generate_content.py --save-content")
 
 
 if __name__ == "__main__":

@@ -1,50 +1,50 @@
-import os
+
+from pathlib import Path
 import streamlit as st
-from dotenv import load_dotenv
-from openai import OpenAI
-from streamlit_carousel import carousel
 
 from generate_content import (
-    generate_with_api,
-    get_mock_content,
-    generate_image,
-    generate_carousel_images,
+    load_brand_voice,
+    build_prompt,
+    save_file,
+    CONTENT_FILE,
+    OUTPUT_DIR,
 )
 
-load_dotenv()
-
-
-def get_api_key():
-    try:
-        if "OPENAI_API_KEY" in st.secrets:
-            return st.secrets["OPENAI_API_KEY"]
-    except Exception:
-        pass
-    return os.getenv("OPENAI_API_KEY", "")
-
+BASE_DIR = Path(__file__).resolve().parent
+EXAMPLES_FILE = BASE_DIR / "brand_voice_examples.txt"
+CAROUSEL_DIR = BASE_DIR / "images" / "karusel"
 
 st.set_page_config(
-    page_title="Dida Boža – Generator objava",
+    page_title="Dida Boža – AI Content Studio",
     page_icon="🍯",
     layout="wide",
 )
 
-st.title("🍯 Dida Boža – Generator Instagram objava")
-st.markdown(
-    "Unesite parametre u bočnoj traci i generirajte **tri Instagram objave** "
-    "za brend Dida Boža. Aplikacija podržava **dry-run** (bez API ključa), "
-    "**stvarno generiranje teksta** i **generiranje vizuala pomoću DALL-E 3** "
-    "(dostupno uz API ključ)."
+st.title("🍯 Dida Boža – AI Content Studio")
+st.caption(
+    "Besplatna priprema AI sadržaja, spremanje tekstova "
+    "i lokalna izrada Instagram karusela."
 )
 
-with st.sidebar:
-    st.header("⚙️ Brifing")
+if "generated_prompt" not in st.session_state:
+    st.session_state.generated_prompt = ""
 
-    proizvod = st.text_input("Proizvod", "Ekološki džem od smokve 240 g")
+if "generated_content" not in st.session_state:
+    st.session_state.generated_content = ""
+
+with st.sidebar:
+    st.header("⚙️ Briefing")
+
+    proizvod = st.text_input(
+        "Proizvod",
+        "Ekološki džem od smokve 240 g",
+    )
+
     publika = st.text_input(
         "Ciljna publika",
-        "Foodie scena, ljubitelji prirodnih proizvoda, Slow Living",
+        "Ljubitelji prirodnih proizvoda i mediteranske kuhinje",
     )
+
     cilj = st.selectbox(
         "Cilj objava",
         [
@@ -55,146 +55,188 @@ with st.sidebar:
             "Prodaja",
         ],
     )
+
     ton = st.selectbox(
         "Ton komunikacije",
-        ["Topao i nostalgičan", "Edukativan", "Emotivan", "Zaigran"],
+        [
+            "Topao i nostalgičan",
+            "Edukativan",
+            "Emotivan",
+            "Zaigran",
+        ],
     )
 
-    st.divider()
-    st.subheader("📎 Dodatne reference (opcionalno)")
-
-    web_stranica = st.text_input(
-        "Web stranica brenda", placeholder="https://www.didaboza.hr/"
-    )
-    inspiracija = st.text_input(
-        "Inspiracija / uzor", placeholder="npr. @bonne_maman"
+    tema = st.text_input(
+        "Tema objava",
+        "Mediteranski proizvodi i način života",
     )
 
-    st.divider()
-    st.subheader("🖼️ Format i vizuali")
+    st.caption("Generiranje teksta odvija se ručno u ChatGPT-u.")
+    st.caption("Aplikacija ne šalje API zahtjeve.")
 
-    # DALL-E je dostupan samo ako postoji API ključ
-    ima_kljuc = bool(get_api_key())
+st.divider()
 
-    if ima_kljuc:
-        format_objave = st.radio(
-            "Format objave",
-            ["Statična slika", "Karusel (4 slajda)"],
-            help="Karusel generira 4 povezane slike.",
-        )
-        generiraj_vizuale = st.checkbox(
-            "Generiraj vizuale (DALL-E 3)",
-            value=False,
-            help="Troši OpenAI kredit (~$0.04 po slici).",
-        )
-    else:
-        format_objave = "Statična slika"
-        generiraj_vizuale = False
-        st.caption(
-            "🖼️ Generiranje vizuala (DALL-E 3) dostupno je samo uz "
-            "OpenAI API ključ. Dry-run radi bez ključa."
-        )
+tab1, tab2, tab3 = st.tabs(
+    [
+        "📝 Priprema prompta",
+        "💬 Generirani sadržaj",
+        "🖼️ Instagram karusel",
+    ]
+)
 
-    st.divider()
+with tab1:
+    st.subheader("1. Priprema AI prompta")
 
-    dry_run = st.checkbox("Dry-run (bez API poziva)", value=True)
-
-    api_key_input = ""
-    if not dry_run or generiraj_vizuale:
-        api_key_input = st.text_input(
-            "OpenAI API ključ",
-            type="password",
-            value=get_api_key(),
-            help="Ako je prazno, koristi se OPENAI_API_KEY iz Secrets/.env.",
-        )
-
-    st.caption("Model: `gpt-4o` · DALL-E 3 · Temperatura: `0.7` · Jezik: hrvatski")
-
-
-if st.button("🚀 Generiraj 3 objave", type="primary", use_container_width=True):
-    if dry_run:
-        content = get_mock_content()
-        st.info("Dry-run: prikazujem primjer izlaza bez poziva API-ja.")
-    else:
-        key = api_key_input or get_api_key()
-        if not key:
-            st.error("Nedostaje `OPENAI_API_KEY`.")
-            st.stop()
-
-        client = OpenAI(api_key=key)
-        with st.spinner("Generiram tri objave…"):
-            try:
-                content = generate_with_api(
-                    client,
-                    proizvod=proizvod,
-                    cilj=cilj,
-                    ton=ton,
-                    publika=publika,
-                    web_stranica=web_stranica,
-                    inspiracija=inspiracija,
-                )
-            except Exception as e:
-                st.error(f"Greška pri pozivu API-ja: {e}")
-                st.stop()
-
-        st.success("✅ Objave su generirane.")
-
-    st.divider()
-    st.text(content)
-
-    st.download_button(
-        "⬇️ Preuzmi kao .txt",
-        data=content,
-        file_name="dida_boza_objave.txt",
-        mime="text/plain",
-        use_container_width=True,
+    st.write(
+        "Aplikacija koristi primjere komunikacije brenda "
+        "kako bi pripremila prompt za ChatGPT."
     )
 
-    # --- Generiranje vizuala (samo ako je uključeno i ima ključa) ---
-    if generiraj_vizuale:
-        key = api_key_input or get_api_key()
-        if not key:
-            st.error("Za generiranje vizuala potreban je OpenAI API ključ.")
-            st.stop()
+    if st.button("Pripremi prompt", type="primary"):
+        brand_voice = load_brand_voice(EXAMPLES_FILE)
 
-        client = OpenAI(api_key=key)
-        st.subheader("🖼️ Generirani vizuali")
-
-        base_prompt = (
-            "Editorial food photography for Dida Boža fig jam, Mediterranean "
-            "terrace, golden hour, rustic ceramic, figs, cheese, warm tones, "
-            "no text, no people"
+        prompt = build_prompt(
+            brand_voice=brand_voice,
+            topic=(
+                f"Proizvod: {proizvod}\n"
+                f"Ciljna publika: {publika}\n"
+                f"Cilj: {cilj}\n"
+                f"Ton: {ton}\n"
+                f"Tema: {tema}"
+            ),
         )
 
-        if format_objave == "Statična slika":
-            with st.spinner("Generiram sliku (DALL-E 3)…"):
-                try:
-                    img_url = generate_image(client, base_prompt)
+        st.session_state.generated_prompt = prompt
+
+        prompt_path = OUTPUT_DIR / "prompt_za_chatgpt.txt"
+        save_file(prompt_path, prompt)
+
+        st.success("Prompt je uspješno pripremljen.")
+
+    if st.session_state.generated_prompt:
+        st.text_area(
+            "Prompt za ChatGPT",
+            value=st.session_state.generated_prompt,
+            height=350,
+        )
+
+        st.download_button(
+            "Preuzmi prompt (.txt)",
+            data=st.session_state.generated_prompt,
+            file_name="prompt_za_chatgpt.txt",
+            mime="text/plain",
+        )
+
+        st.info(
+            "Kopiraj prompt, zalijepi ga u ChatGPT i "
+            "generirani rezultat prenesi u sljedeću karticu."
+        )
+
+with tab2:
+    st.subheader("2. Spremanje generiranog sadržaja")
+
+    st.write(
+        "Ovdje zalijepi tekst koji si prethodno generirao "
+        "u ChatGPT-u."
+    )
+
+    content = st.text_area(
+        "Generirani sadržaj",
+        value=st.session_state.generated_content,
+        height=350,
+        placeholder="Zalijepi tri generirane Instagram objave...",
+    )
+
+    if st.button("Spremi sadržaj"):
+        if not content.strip():
+            st.warning("Najprije unesi generirani sadržaj.")
+        else:
+            st.session_state.generated_content = content
+
+            save_file(CONTENT_FILE, content)
+
+            st.success("Sadržaj je spremljen.")
+
+    if CONTENT_FILE.exists():
+        saved_content = CONTENT_FILE.read_text(encoding="utf-8")
+
+        st.download_button(
+            "Preuzmi spremljeni sadržaj (.txt)",
+            data=saved_content,
+            file_name="dida_boza_objave.txt",
+            mime="text/plain",
+        )
+
+with tab3:
+    st.subheader("3. Lokalna izrada Instagram karusela")
+
+    st.write(
+        "Karusel se izrađuje lokalno pomoću Pillow biblioteke. "
+        "Nema API poziva ni dodatnih troškova."
+    )
+
+    st.caption("Format: 1080 × 1350 px (Instagram 4:5).")
+
+    if st.button("Generiraj karusel", type="primary"):
+        try:
+            import subprocess
+            import sys
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(BASE_DIR / "make_carousel.py"),
+                ],
+                cwd=str(BASE_DIR),
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+
+            if result.returncode != 0:
+                st.error("Greška pri izradi karusela.")
+                st.code(result.stderr or result.stdout)
+            else:
+                st.success("Karusel je uspješno izrađen.")
+                if result.stdout:
+                    st.code(result.stdout)
+
+        except Exception as error:
+            st.error(f"Greška: {error}")
+
+    if CAROUSEL_DIR.exists():
+        slides = sorted(CAROUSEL_DIR.glob("slajd_*.png"))
+
+        if slides:
+            st.divider()
+            st.subheader("Pregled slajdova")
+
+            columns = st.columns(2)
+
+            for index, slide in enumerate(slides):
+                with columns[index % 2]:
                     st.image(
-                        img_url,
-                        caption="DALL-E 3 generirani vizual",
-                        use_container_width=True,
+                        str(slide),
+                        caption=f"Slajd {index + 1}",
+                        width="stretch",
                     )
-                    st.markdown(f"[Otvori sliku u novom tabu]({img_url})")
-                except Exception as e:
-                    st.error(f"Greška pri generiranju slike: {e}")
 
-        else:  # Karusel
-            with st.spinner("Generiram 4 slike za karusel (DALL-E 3)…"):
-                try:
-                    urls = generate_carousel_images(
-                        client, base_prompt, num_slides=4
+                    st.download_button(
+                        f"Preuzmi slajd {index + 1}",
+                        data=slide.read_bytes(),
+                        file_name=slide.name,
+                        mime="image/png",
+                        key=f"download_{slide.name}",
                     )
-                    items = [
-                        {"title": f"Slajd {i + 1}", "text": "", "img": url}
-                        for i, url in enumerate(urls)
-                    ]
-                    carousel(items=items)
-                except Exception as e:
-                    st.error(f"Greška pri generiranju karusela: {e}")
+        else:
+            st.info(
+                "Karusel još nije izrađen. "
+                "Klikni na gumb iznad."
+            )
 
-else:
-    st.caption(
-        "Klikni **Generiraj 3 objave** za početak. "
-        "Dry-run je uključen prema zadanim postavkama."
-    )
+st.divider()
+
+st.caption(
+    "Dida Boža AI Content Studio | "
+    "Lokalni Python pipeline | Bez plaćenih API poziva"
+)

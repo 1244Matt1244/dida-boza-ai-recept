@@ -1,60 +1,190 @@
-================================================================
-BRAND VOICE — PRIMJERI OBJAVA DIDA BOŽE
-================================================================
-
-UPUTA ZA POPUNJAVANJE:
-Ova datoteka služi kao "few-shot" kontekst za GPT-4o — model uči
-ton, stil i strukturu iz stvarnih primjera.
-
-KAKO POPUNITI:
-1. Otvori https://www.instagram.com/dida_boza/
-2. Odaberi 5-10 objava koje najbolje predstavljaju brend
-   (mješavina: nagradne igre, prikaz proizvoda, edukacija, sezona)
-3. Za svaku objavu kopiraj: datum, tip objave, hashtagove i cijeli tekst
-4. Zalijepi u format ispod
-
-NAPOMENA: Primjeri ispod su OZNAČENI kao "ILUSTRACIJA TONA"
-jer nisu stvarni citati — to su ilustracije tona. Zamijeni ih
-stvarnim objavama s profila prije korištenja u produkciji.
 
 ================================================================
-ILUSTRACIJA 1 — nagradna igra
+DIDA BOŽA — BRAND VOICE EXAMPLES
+IZVOR: SLUŽBENA WEB-STRANICA
 ================================================================
-Datum: [nepoznato — zamijeni stvarnim]
-Tip: nagradna igra
-Hashtagovi: #DidaBoza #nagradnaigra #Dalmacija
 
-Tekst:
-"Dragi naši, slavimo zajedno! 🎉 Poklanjamo 3 poklon paketa
-Dida Boža džemova. Sve što trebaš napraviti je:
-1. Zaprati @dida_boza
-2. Označi osobu s kojom bi podijelio/la džem
-3. Napiši u komentar koji ti je najdraži okus
-Sretno! 🍀 Rezultati u petak."
+SVRHA
+Few-shot kontekst za GPT-4o.
+Primjeri predstavljaju stvarne sadržaje iz rubrike Aktualno
+na službenoj web-stranici Dida Boža.
 
-================================================================
-ILUSTRACIJA 2 — prikaz proizvoda
-================================================================
-Datum: [nepoznato — zamijeni stvarnim]
-Tip: prikaz proizvoda
-Hashtagovi: #DidaBoza #EkoDzem #Smokva #Dalmacija
+IZVORNA RUBRIKA:
+https://www.didaboza.hr/hr/o-dida-bozi/aktualno/
 
-Tekst:
-"Smokva iz Dalmacije, u staklenci. 🌿
-Naš ekološki džem od smokve pravi se po receptu koji se prenosi
-generacijama — bez konzervansa, bez umjetnih boja, samo smokva,
-šećer i malo limuna. BIO certifikat potvrđuje ono što već znamo:
-priroda najbolje zna."
+NAPOMENA
+Ovo su web-članci i promotivni sadržaji, a ne Instagram objave.
+Kratki citati služe kao uzorci izvornog jezika.
+Sažeci opisuju sadržaj članaka, ali nisu njihovi doslovni citati.
 
 ================================================================
-ILUSTRACIJA 3 — sezonska objava
+[POST 1]
 ================================================================
-Datum: [nepoznato — zamijeni stvarnim]
-Tip: sezonska (ljeto)
-Hashtagovi: #DidaBoza #Ljeto #Dalmacija #SlowLiving
 
-Tekst:
-"Ljeto je stiglo. ☀️
-Vrijeme je za jutra bez žurbe, kavu na terasi i kruh s džemom
-od smokve. Ponekad je najveći luksuz — imati vremena.
-Uživajte u svom komadu Dalmacije. 🌊"
+STATUS: STVARNA OBJAVA
+DATUM: 08.04.2022.
+NASLOV: Dida Božin doručak
+TIP: lifestyle / recepti / predstavljanje proizvoda
+SOURCE:
+https://www.didaboza.hr/hr/o-dida-bozi/aktualno/dida-bozin-dorucak/
+
+HASHTAGS: Nisu navedeni u članku.
+
+IZVORNI UZORAK:
+"Najvažniji obrok u danu je doručak, no ne bilo kakav"
+
+SAŽETAK:
+Članak povezuje proizvode Dida Boža s idejama za doručak.
+Predlažu se smoothieji s prirodnim sokovima, kombinacije
+džema od smokve i sireva, palačinke s džemom te omlet
+s dodatkom domaćeg ajvara.
+
+KARAKTERISTIKE STILA:
+- Edukativan i savjetodavan pristup.
+- Izravno obraćanje čitatelju.
+- Konkretni prijedlozi za svakodnevnu upotrebu proizvoda.
+- Povezivanje hrane s uživanjem i energijom.
+
+================================================================
+[POST 2]
+================================================================
+
+STATUS: STVARNA OBJAVA
+DATUM: 08.02.2023.
+NASLOV: Vrijeme je za detox
+TIP: edukativni / sezonski / predstavljanje proizvoda
+SOURCE:
+https://www.didaboza.hr/hr/o-dida-bozi/aktualno/vrijeme-je-za-detox/
+
+HASHTAGS: Nisu navedeni u članku.
+
+IZVORNI UZORAK:
+"Došlo nam je hladnije vrijeme, a s njime i pad imuniteta"
+
+SAŽETAK:
+Članak počinje sezonskim kontekstom i temom prehrane.
+Predstavlja ekološke sokove od cikle i nara, njihove načine
+konzumacije te prijedloge za smoothieje i bezalkoholni punč.
+
+KARAKTERISTIKE STILA:
+- Početak aktualnom sezonskom temom.
+- Edukativna poruka povezana s proizvodima.
+- Praktični prijedlozi i recepti.
+- Promotivna poruka uklopljena u koristan sadržaj.
+
+================================================================
+[POST 3]
+================================================================
+
+STATUS: STVARNA OBJAVA
+DATUM: 01.06.2023.
+NASLOV: Dida Boža rapsodija okusa za Vaše nepce
+TIP: predstavljanje proizvoda / promocija
+SOURCE:
+https://www.didaboza.hr/hr/o-dida-bozi/aktualno/dida-boza-rapsodija-okusa-za-vase-nepce/
+
+HASHTAGS: Nisu navedeni u članku.
+
+IZVORNI UZORAK:
+"zakinuli ste vaše nepce za bogatstvo prirode i punoću okusa"
+
+SAŽETAK:
+Članak predstavlja Dida Boža asortiman, s naglaskom na
+novi Jaffa namaz od smokve, naranče i kakaa.
+Opisuje kombinaciju okusa, sastojke, načine konzumacije
+i mogućnosti kupnje proizvoda.
+
+KARAKTERISTIKE STILA:
+- Senzoričan i opisni jezik.
+- Naglašavanje okusa i kombinacija sastojaka.
+- Entuzijastično predstavljanje noviteta.
+- Prijedlozi za korištenje proizvoda u različitim jelima.
+
+================================================================
+[POST 4]
+================================================================
+
+STATUS: STVARNA OBJAVA
+DATUM: 14.07.2023.
+NASLOV: Dida Boža ljetni nagradni natječaj:
+"Za ljeto bez sekiranja uz Dida Boža nova obiteljska pakiranja!"
+TIP: nagradni natječaj / ljetna kampanja
+SOURCE:
+https://www.didaboza.hr/hr/o-dida-bozi/aktualno/dida-boza-ljetni-natjecaj/
+
+HASHTAGS:
+#DidaBozaljetobezsekiranja
+#DidaBozanovaobiteljskapakiranja
+
+IZVORNI UZORAK:
+"Pridružite nam se na ljetnoj avanturi duž prekrasne Jadranske obale"
+
+SAŽETAK:
+Ljetna kampanja poziva publiku na sudjelovanje u nagradnom
+natječaju. Sudionici trebaju pronaći Dida Boža svlačionice,
+napraviti fotografiju ili video i objaviti sadržaj uz zadane
+hashtagove. Predstavljene su nagrade i pravila sudjelovanja.
+
+KARAKTERISTIKE STILA:
+- Pozitivan i pozivajući ton.
+- Povezivanje brenda s ljetom i Jadranskom obalom.
+- Jasne upute za sudjelovanje.
+- Izravni poziv publici na akciju.
+- Prepoznatljivi kampanjski hashtagovi.
+
+================================================================
+[POST 5]
+================================================================
+
+STATUS: STVARNA OBJAVA
+DATUM: 05.02.2024.
+NASLOV: Poklade – vrijeme zabave i ukusnih krafni
+TIP: sezonski / tradicija / recept
+SOURCE:
+https://www.didaboza.hr/hr/o-dida-bozi/aktualno/poklade-vrijeme-zabave-i-ukusnih-krafnih/
+
+HASHTAGS: Nisu navedeni u članku.
+
+IZVORNI UZORAK:
+"Poklade - neki ih još nazivaju fašnik, maškare i vrijeme karnevala"
+
+SAŽETAK:
+Članak objašnjava tradiciju poklada i običaje povezane
+s maškarama, karnevalima i slasticama. Sadržaj završava
+predstavljanjem recepta za krafne punjene Dida Boža
+džemom od mandarine.
+
+KARAKTERISTIKE STILA:
+- Povezivanje proizvoda s tradicijom i običajima.
+- Sezonski kontekst kao uvod u priču.
+- Topao i informativan ton.
+- Recept kao prirodan način predstavljanja proizvoda.
+
+================================================================
+UPUTA ZA GPT-4o
+================================================================
+
+Analiziraj pet stvarnih primjera sa službene web-stranice.
+
+Prepoznaj:
+- način otvaranja teksta;
+- vokabular i stil obraćanja publici;
+- način predstavljanja proizvoda;
+- povezivanje proizvoda sa svakodnevnim životom;
+- sezonske i gastronomske teme;
+- način pozivanja publike na sudjelovanje;
+- strukturu promotivnog i edukativnog sadržaja.
+
+Kada generiraš nove Instagram sadržaje:
+1. Koristi prepoznatljiv ton brenda, ali prilagodi format
+   i duljinu Instagram objavi.
+2. Nemoj predstavljati web-članak kao Instagram objavu.
+3. Nemoj doslovno kopirati izvorne tekstove.
+4. Ne izmišljaj sastojke, certifikate, popuste ili nagrade.
+5. Hashtagove koristi samo kada su relevantni za novi sadržaj.
+6. Razlikuj edukativnu, sezonsku, promotivnu i lifestyle objavu.
+7. Prednost daj autentičnom i prirodnom hrvatskom jeziku.
+
+================================================================
+KRAJ DATOTEKE
+================================================================

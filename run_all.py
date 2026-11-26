@@ -1,138 +1,169 @@
+
 """
-run_all.py — end-to-end pipeline za Dida Boža AI recept.
+DIDA BOŽA — END-TO-END PIPELINE
 
-Pokreće:
-1. Generiranje tri Instagram objave (GPT-4o ili dry-run)
-2. Generiranje karusela (4 slajda, Pillow)
-3. Spremanje uputa za ljudsku doradu u Canvi
+Besplatni workflow:
+1. Priprema prompta za ChatGPT
+2. Izrada vizuala / carousel u lokalnoj skripti
+3. Priprema uputa za Canvu
+4. Analiza Instagram metrika
+5. Usporedba rezultata
+6. Izrada tjednog izvještaja
+7. Izrada dashboarda
 
-Korištenje:
-    python run_all.py                 # dry-run (bez API ključa)
-    python run_all.py --api           # stvarno generiranje (treba OPENAI_API_KEY)
+Nema automatskih API poziva.
 """
 
-import os
-import sys
+import argparse
 import subprocess
+import sys
+from pathlib import Path
 
-os.makedirs("output", exist_ok=True)
-
-print("=" * 60)
-print("🚀 DIDA BOŽA — END-TO-END PIPELINE")
-print("=" * 60)
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "output"
 
 
-# --- KORAK 1: Generiranje tekstova ---
-print("\n[1/3] Generiranje tri Instagram objave...")
+def run_script(script_name, *args):
+    """Pokreće Python skriptu iz glavne mape projekta."""
+    script_path = BASE_DIR / script_name
 
-if "--api" in sys.argv:
-    from openai import OpenAI
-    from dotenv import load_dotenv
-    from generate_content import generate_with_api
+    if not script_path.exists():
+        print(f"GREŠKA: Ne postoji datoteka {script_name}")
+        return False
 
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("❌ OPENAI_API_KEY nije pronađen. Pokreni bez --api za dry-run.")
+    command = [sys.executable, str(script_path)]
+    command.extend(str(arg) for arg in args)
+
+    result = subprocess.run(command, cwd=BASE_DIR)
+    return result.returncode == 0
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Dida Boža — besplatni AI content i analytics pipeline"
+    )
+    parser.add_argument(
+        "--save-content",
+        action="store_true",
+        help="Ručno spremanje sadržaja generiranog u ChatGPT-u"
+    )
+    parser.add_argument(
+        "--skip-analytics",
+        action="store_true",
+        help="Preskače analizu i izvještaje"
+    )
+    args = parser.parse_args()
+
+    OUTPUT_DIR.mkdir(exist_ok=True)
+
+    print("\n" + "=" * 55)
+    print("DIDA BOŽA — AUTOMATIZIRANI PIPELINE")
+    print("Besplatni način rada — bez API poziva")
+    print("=" * 55)
+
+    # 1. Priprema prompta ili ručno spremanje sadržaja
+    print("\n[1/7] PRIPREMA AI SADRŽAJA")
+
+    if args.save_content:
+        success = run_script("generate_content.py", "--save-content")
+    else:
+        success = run_script("generate_content.py")
+
+    if not success:
+        print("Greška u pripremi sadržaja. Pipeline je zaustavljen.")
         sys.exit(1)
 
-    client = OpenAI(api_key=api_key)
-    content = generate_with_api(client)
-    print("   ✅ Generirano putem GPT-4o")
-else:
-    from generate_content import get_mock_content
-    content = get_mock_content()
-    print("   ✅ Dry-run (bez API poziva)")
+    if args.save_content:
+        print("\nSadržaj je spremljen.")
+        print("Sljedeće možeš pokrenuti pipeline bez --save-content.")
+        return
 
-with open("output/objave.txt", "w", encoding="utf-8") as f:
-    f.write(content)
-print("   💾 Spremljeno: output/objave.txt")
+    # 2. Izrada carousela
+    print("\n[2/7] IZRADA CAROUSELA")
 
+    if not run_script("make_carousel.py"):
+        print("Upozorenje: carousel nije izrađen.")
 
-# --- KORAK 2: Generiranje karusela ---
-print("\n[2/3] Generiranje karusela (4 slajda, Pillow)...")
+    # 3. Upute za Canvu
+    print("\n[3/7] PRIPREMA UPUTA ZA CANVU")
 
-# Postavi UTF-8 za subprocess (rješava Windows cp1250 problem s emoji)
-env = os.environ.copy()
-env["PYTHONIOENCODING"] = "utf-8"
+    canva_text = """DIDA BOŽA — UPUTE ZA CANVA VIZUALE
 
-try:
-    result = subprocess.run(
-        [sys.executable, "make_carousel.py"],
-        capture_output=True,
-        encoding="utf-8",
-        errors="replace",
-        env=env,
-        check=True,
-    )
-    print("   ✅ Karusel generiran")
-    print("   💾 Spremljeno: images/karusel/slajd_1..4.png")
-except subprocess.CalledProcessError as e:
-    print("   ⚠️  Karusel nije generiran.")
-    if e.stderr:
-        print("   --- STDERR (prvih 1500 znakova) ---")
-        print(e.stderr[:1500])
-    if e.stdout:
-        print("   --- STDOUT (prvih 500 znakova) ---")
-        print(e.stdout[:500])
-except Exception as e:
-    print(f"   ⚠️  Neočekivana greška: {e}")
+1. Koristiti vizualni identitet brenda.
+2. Koristiti čitljivu tipografiju.
+3. Istaknuti glavni proizvod ili temu objave.
+4. Ostaviti dovoljno praznog prostora.
+5. Prilagoditi format Instagram objavi (1080 x 1080).
+6. Provjeriti pravopis i čitljivost teksta.
 
-
-# --- KORAK 3: Upute za Canvu ---
-print("\n[3/3] Priprema uputa za ljudsku doradu u Canvi...")
-
-upute = """UPUTE ZA LJUDSKU DORADU U CANVI
-================================
-
-Cilj: od AI-generirane pozadine i stvarne staklenke napraviti tri finalne objave.
-
-1. OTVORI CANVU
-   - https://www.canva.com
-   - Create a design → Instagram Post (1080 × 1350 px)
-
-2. UVEZI POZADINU
-   - Uploads → uploadaj AI-generiranu pozadinu (iz output/ ili images/)
-   - Povuci na platno, rastegni da pokrije cijelu površinu
-
-3. INTEGRIRAJ STVARNU STAKLENKU
-   - Uploads → uploadaj images/staklenka.jpg (stvarna fotografija Dida Boža)
-   - Klikni na sliku → "Background Remover" (uklanja pozadinu)
-   - Postavi staklenku u prvi plan, prilagodi veličinu i perspektivu
-   - Dodaj meku sjenu ispod staklenke (Effects → Shadows → Soft)
-
-4. DODAJ TIPOGRAFIJU
-   - Text → dodaj naslov i kratku poruku za svaku objavu:
-     * Objava 1: "Slatko susreće slano / Jeste li probali smokvu uz sir?"
-     * Objava 2: "Smokva. Kruh. Malo Mediterana. / Jednostavan zalogaj, veliki užitak."
-     * Objava 3: "Mali ritual. Veliki užitak. / Pronađite svoj omiljeni način posluživanja smokve."
-   - Font: Playfair Display (serif) za naslov, Inter za podnaslov
-   - Boja: krem #FAF7F0 s laganom sjenom
-
-5. DODAJ BRENDING
-   - Mali banner "DIDA BOŽA • KREATIVNI KONCEPT" na dno slike
-   - Boja: #8B4513 (zemljana smeđa)
-
-6. IZVEZI
-   - Share → Download → PNG
-   - Spremi u images/objava1.jpg, images/staklenka.jpg, images/objava3.jpg
-
-NAPOMENA:
-Koraci 3–5 su ljudska dorada — AI ne smije izmišljati etikete ni ambalažu.
-Stvarna staklenka se uvijek integrira ručno.
+Napomena:
+Ovo su upute za ručnu doradu u Canvi.
 """
 
-with open("output/upute_za_canvu.txt", "w", encoding="utf-8") as f:
-    f.write(upute)
-print("   💾 Spremljeno: output/upute_za_canvu.txt")
+    canva_path = OUTPUT_DIR / "canva_upute.txt"
+    canva_path.write_text(canva_text, encoding="utf-8")
+    print(f"Upute spremljene: {canva_path}")
+
+    if args.skip_analytics:
+        print("\nAnalitika je preskočena.")
+        print("\nPIPELINE ZAVRŠEN.")
+        return
+
+    # 4. Analiza metrika
+    print("\n[4/7] ANALIZA INSTAGRAM METRIKA")
+
+    if not run_script("analyze_metrics.py", BASE_DIR / "metrics_demo_new.csv"):
+        print("Upozorenje: analiza metrika nije uspjela.")
+
+    # 5. Usporedba razdoblja
+    print("\n[5/7] USPOREDBA REZULTATA")
+
+    old_csv = BASE_DIR / "metrics_demo_old.csv"
+    new_csv = BASE_DIR / "metrics_demo_new.csv"
+
+    if old_csv.exists() and new_csv.exists():
+        if not run_script(
+            "compare_metrics.py",
+            old_csv,
+            new_csv
+        ):
+            print("Upozorenje: usporedba nije uspjela.")
+    else:
+        print("Nedostaju CSV datoteke za usporedbu.")
+
+    # 6. Tjedni izvještaj
+    print("\n[6/7] IZRADA TJEDNOG IZVJEŠTAJA")
+
+    if old_csv.exists() and new_csv.exists():
+        if not run_script(
+            "weekly_report.py",
+            old_csv,
+            new_csv
+        ):
+            print("Upozorenje: tjedni izvještaj nije izrađen.")
+    else:
+        print("Nedostaju CSV datoteke za tjedni izvještaj.")
+
+    # 7. Dashboard
+    print("\n[7/7] IZRADA DASHBOARDA")
+
+    if old_csv.exists() and new_csv.exists():
+        if not run_script(
+            "create_dashboard.py",
+            old_csv,
+            new_csv
+        ):
+            print("Upozorenje: dashboard nije izrađen.")
+    else:
+        print("Nedostaju CSV datoteke za dashboard.")
+
+    print("\n" + "=" * 55)
+    print("PIPELINE ZAVRŠEN")
+    print("Provjeri mapu output/ za rezultate.")
+    print("Napomena: demo metrike su simulirani podaci.")
+    print("Nema plaćenih API poziva.")
+    print("=" * 55)
 
 
-# --- SAŽETAK ---
-print("\n" + "=" * 60)
-print("🎉 PIPELINE ZAVRŠEN")
-print("=" * 60)
-print("\nRezultat u output/:")
-print("  - objave.txt              (tri Instagram objave)")
-print("  - upute_za_canvu.txt      (koraci za ljudsku doradu)")
-print("  - karusel/                (ako je make_carousel.py uspio)")
-print("\nSljedeći korak: otvori Canvu i prati upute_za_canvu.txt")
+if __name__ == "__main__":
+    main()

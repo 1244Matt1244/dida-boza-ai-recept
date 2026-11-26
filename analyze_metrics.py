@@ -1,46 +1,188 @@
-"""
-analyze_metrics.py — analiza Instagram metrika iz CSV datoteke.
 
-Čita metrics.csv (ili metrics_template.csv) i računa:
-- Prosječne lajkove, komentare, saves, doseg
-- Stopu interakcije po objavi
-- Najbolji dan i tip objave
+"""
+analyze_metrics.py
+
+Analiza Instagram metrika za projekt Dida Boža.
+
+Analizira:
+- Prosječne lajkove, komentare, saves i doseg
+- Engagement rate (stopu interakcije)
+- Najbolji dan objavljivanja
+- Najuspješniji tip objave
 - Najčešće hashtagove
+- Preporuke za sljedeći ciklus objava
 
 Korištenje:
-    python analyze_metrics.py                    # koristi metrics.csv
-    python analyze_metrics.py metrics_template.csv  # ili drugi CSV
+    python analyze_metrics.py
+    python analyze_metrics.py metrics_template.csv
+    python analyze_metrics.py metrics.csv
+
+CSV stupci:
+    datum,tip_objave,lajkovi,komentari,saves,doseg,hashtagovi
 """
 
 import csv
-import os
 import sys
-from collections import Counter
+import re
+from pathlib import Path
+from collections import Counter, defaultdict
 from datetime import datetime
 
 
-def load_metrics(path):
-    """Učitava CSV i vraća listu rječnika."""
-    if not os.path.exists(path):
-        print(f"❌ Datoteka ne postoji: {path}")
-        print("   Napravi metrics.csv prema predlošku iz metrics_template.csv")
-        sys.exit(1)
+# --------------------------------------------------
+# POSTAVKE
+# --------------------------------------------------
 
-    with open(path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "output"
 
+DEFAULT_CSV = BASE_DIR / "metrics.csv"
+TEMPLATE_CSV = BASE_DIR / "metrics_template.csv"
+REPORT_FILE = OUTPUT_DIR / "analiza_rezultata.txt"
+
+DAYS_HR = {
+    0: "Ponedjeljak",
+    1: "Utorak",
+    2: "Srijeda",
+    3: "Četvrtak",
+    4: "Petak",
+    5: "Subota",
+    6: "Nedjelja",
+}
+
+
+# --------------------------------------------------
+# POMOĆNE FUNKCIJE
+# --------------------------------------------------
 
 def parse_number(value):
-    """Pretvori string u broj (podržava '3.200' i '3200')."""
-    try:
-        return int(str(value).replace(".", "").replace(",", ""))
-    except (ValueError, AttributeError):
-        return 0
+    """
+    Pretvara tekst u broj.
+    Podržava formate poput 3200, 3.200 i 3,200.
+    Prazne ili neispravne vrijednosti vraćaju None.
+    """
 
+    if value is None:
+        return None
+
+    value = str(value).strip()
+
+    if not value:
+        return None
+
+    value = value.replace(" ", "")
+
+    try:
+        return int(value.replace(".", "").replace(",", ""))
+    except ValueError:
+        return None
+
+
+def parse_date(value):
+    """
+    Podržava nekoliko uobičajenih formata datuma.
+    """
+
+    if not value:
+        return None
+
+    value = str(value).strip()
+
+    formats = [
+        "%d.%m.%Y.",
+        "%d.%m.%Y",
+        "%Y-%m-%d",
+        "%d/%m/%Y",
+        "%d-%m-%Y",
+    ]
+
+    for date_format in formats:
+        try:
+            return datetime.strptime(value, date_format)
+        except ValueError:
+            continue
+
+    return None
+
+
+def average(values):
+    """Računa prosjek samo dostupnih vrijednosti."""
+
+    valid = [value for value in values if value is not None]
+
+    if not valid:
+        return None
+
+    return sum(valid) / len(valid)
+
+
+def format_average(value, decimals=0):
+    """Formatira prosjek ili prikazuje N/A."""
+
+    if value is None:
+        return "N/A"
+
+    return f"{value:.{decimals}f}"
+
+
+# --------------------------------------------------
+# UČITAVANJE CSV DATOTEKE
+# --------------------------------------------------
+
+def load_metrics(path):
+    """Učitava CSV i vraća listu redaka."""
+
+    if not path.exists():
+        print(f"❌ Datoteka ne postoji: {path}")
+        sys.exit(1)
+
+    try:
+        with open(path, "r", encoding="utf-8-sig", newline="") as file:
+            reader = csv.DictReader(file)
+
+            if not reader.fieldnames:
+                print("❌ CSV datoteka nema zaglavlja.")
+                sys.exit(1)
+
+            required_columns = {
+                "datum",
+                "tip_objave",
+                "lajkovi",
+                "komentari",
+                "saves",
+                "doseg",
+                "hashtagovi",
+            }
+
+            missing = required_columns - set(reader.fieldnames)
+
+            if missing:
+                print(
+                    "❌ Nedostaju CSV stupci: "
+                    + ", ".join(sorted(missing))
+                )
+                sys.exit(1)
+
+            rows = list(reader)
+
+    except OSError as error:
+        print(f"❌ Greška pri čitanju CSV datoteke: {error}")
+        sys.exit(1)
+
+    if not rows:
+        print("⚠️ CSV datoteka ne sadrži podatke.")
+        return []
+
+    return rows
+
+
+# --------------------------------------------------
+# ANALIZA PODATAKA
+# --------------------------------------------------
 
 def analyze(rows):
-    """Analizira metrike i vraća rječnik s rezultatima."""
+    """Analizira metrike i vraća rezultate."""
+
     if not rows:
         return None
 
@@ -52,132 +194,355 @@ def analyze(rows):
         "doseg": [],
         "interakcije": [],
         "hashtagovi": Counter(),
-        "po_tipu": {},
+        "po_tipu": defaultdict(list),
+        "po_danu": defaultdict(list),
+        "neispravni_datumi": 0,
+        "objave_bez_dosega": 0,
     }
 
     for row in rows:
-        lajkovi = parse_number(row.get("lajkovi", 0))
-        komentari = parse_number(row.get("komentari", 0))
-        saves = parse_number(row.get("saves", 0))
-        doseg = parse_number(row.get("doseg", 0))
 
+        lajkovi = parse_number(row.get("lajkovi"))
+        komentari = parse_number(row.get("komentari"))
+        saves = parse_number(row.get("saves"))
+        doseg = parse_number(row.get("doseg"))
+
+        # Nedostajuće vrijednosti ne računamo kao nule.
         metrics["lajkovi"].append(lajkovi)
         metrics["komentari"].append(komentari)
         metrics["saves"].append(saves)
         metrics["doseg"].append(doseg)
 
-        # Stopa interakcije = (lajkovi + komentari + saves) / doseg
-        if doseg > 0:
-            interakcija = (lajkovi + komentari + saves) / doseg * 100
+        # Engagement rate.
+        if doseg is not None and doseg > 0:
+            interaction_values = [
+                value for value in [lajkovi, komentari, saves]
+                if value is not None
+            ]
+
+            if interaction_values:
+                engagement = (
+                    sum(interaction_values) / doseg * 100
+                )
+                metrics["interakcije"].append(engagement)
+            else:
+                engagement = None
         else:
-            interakcija = 0
-        metrics["interakcije"].append(interakcija)
+            engagement = None
+            metrics["objave_bez_dosega"] += 1
 
-        # Hashtagovi
-        hashtags = row.get("hashtagovi", "")
-        for tag in hashtags.split():
-            if tag.startswith("#"):
-                metrics["hashtagovi"][tag] += 1
+        # Tip objave.
+        tip = (
+            row.get("tip_objave") or "Nepoznato"
+        ).strip()
 
-        # Po tipu objave
-        tip = row.get("tip_objave", "nepoznato")
-        if tip not in metrics["po_tipu"]:
-            metrics["po_tipu"][tip] = {
-                "lajkovi": [],
-                "komentari": [],
-                "saves": [],
-                "doseg": [],
-            }
-        metrics["po_tipu"][tip]["lajkovi"].append(lajkovi)
-        metrics["po_tipu"][tip]["komentari"].append(komentari)
-        metrics["po_tipu"][tip]["saves"].append(saves)
-        metrics["po_tipu"][tip]["doseg"].append(doseg)
+        metrics["po_tipu"][tip].append({
+            "lajkovi": lajkovi,
+            "komentari": komentari,
+            "saves": saves,
+            "doseg": doseg,
+            "engagement": engagement,
+        })
+
+        # Dan objavljivanja.
+        datum = parse_date(row.get("datum"))
+
+        if datum:
+            dan = DAYS_HR[datum.weekday()]
+
+            metrics["po_danu"][dan].append({
+                "lajkovi": lajkovi,
+                "komentari": komentari,
+                "saves": saves,
+                "doseg": doseg,
+                "engagement": engagement,
+            })
+        else:
+            metrics["neispravni_datumi"] += 1
+
+        # Hashtagovi.
+        hashtags = row.get("hashtagovi") or ""
+
+        for tag in re.findall(r"#[\wčćžšđČĆŽŠĐ]+", hashtags):
+            metrics["hashtagovi"][tag.lower()] += 1
 
     return metrics
 
 
-def print_report(metrics):
-    """Ispisuje formatirani izvještaj."""
+# --------------------------------------------------
+# ANALIZA PO GRUPAMA
+# --------------------------------------------------
+
+def group_average(data, field):
+    """Računa prosjek određene metrike unutar grupe."""
+
+    values = [item[field] for item in data]
+
+    return average(values)
+
+
+def best_group(groups, field):
+    """Pronalazi grupu s najboljim prosjekom."""
+
+    results = {}
+
+    for name, data in groups.items():
+        result = group_average(data, field)
+
+        if result is not None:
+            results[name] = result
+
+    if not results:
+        return None, None
+
+    best_name = max(results, key=results.get)
+
+    return best_name, results[best_name]
+
+
+# --------------------------------------------------
+# GENERIRANJE IZVJEŠTAJA
+# --------------------------------------------------
+
+def generate_report(metrics):
+    """Generira tekstualni izvještaj."""
+
     if not metrics:
-        print("Nema podataka za analizu.")
-        return
+        return "Nema podataka za analizu."
 
-    print("=" * 60)
-    print("📊 ANALIZA INSTAGRAM METRIKA")
-    print("=" * 60)
-    print(f"\nUkupno objava: {metrics['ukupno_objava']}")
+    lines = []
 
-    # Prosjeci
-    def avg(lst):
-        return sum(lst) / len(lst) if lst else 0
+    def add(text=""):
+        lines.append(text)
 
-    print("\n── PROSJEČNE VRIJEDNOSTI PO OBJAVI ──")
-    print(f"  Lajkovi:      {avg(metrics['lajkovi']):.0f}")
-    print(f"  Komentari:    {avg(metrics['komentari']):.0f}")
-    print(f"  Saves:        {avg(metrics['saves']):.0f}")
-    print(f"  Doseg:        {avg(metrics['doseg']):.0f}")
-    print(f"  Interakcija:  {avg(metrics['interakcije']):.2f}%")
+    add("=" * 60)
+    add("DIDA BOŽA – ANALIZA INSTAGRAM METRIKA")
+    add("=" * 60)
 
-    # Po tipu
-    print("\n── PO TIPU OBJAVE ──")
+    add(f"\nUkupno analiziranih objava: {metrics['ukupno_objava']}")
+
+    # Prosjeci.
+    add("\n--- PROSJEČNE VRIJEDNOSTI PO OBJAVI ---")
+
+    for label, key in [
+        ("Lajkovi", "lajkovi"),
+        ("Komentari", "komentari"),
+        ("Spremanja (saves)", "saves"),
+        ("Doseg", "doseg"),
+    ]:
+        add(
+            f"{label:25}: "
+            f"{format_average(average(metrics[key]))}"
+        )
+
+    add(
+        f"{'Engagement rate':25}: "
+        f"{format_average(average(metrics['interakcije']), 2)}%"
+        if metrics["interakcije"]
+        else "Engagement rate: N/A (nema dovoljno podataka o dosegu)"
+    )
+
+    # Tip objave.
+    add("\n--- REZULTATI PO TIPU OBJAVE ---")
+
     for tip, data in metrics["po_tipu"].items():
-        print(f"\n  {tip.upper()}:")
-        print(f"    Lajkovi:      {avg(data['lajkovi']):.0f}")
-        print(f"    Komentari:    {avg(data['komentari']):.0f}")
-        print(f"    Saves:        {avg(data['saves']):.0f}")
-        print(f"    Doseg:        {avg(data['doseg']):.0f}")
 
-    # Hashtagovi
-    print("\n── NAJČEŠĆI HASHTAGOVI ──")
-    for tag, count in metrics["hashtagovi"].most_common(10):
-        print(f"  {tag}: {count}×")
+        add(f"\n{tip.upper()}")
 
-    # Preporuke
-    print("\n── PREPORUKE ZA SLJEDEĆI CIKLUS ──")
+        add(
+            f"  Prosjek lajkova: "
+            f"{format_average(group_average(data, 'lajkovi'))}"
+        )
 
-    saves_avg = avg(metrics["saves"])
-    komentari_avg = avg(metrics["komentari"])
-    interakcija_avg = avg(metrics["interakcije"])
+        add(
+            f"  Prosjek komentara: "
+            f"{format_average(group_average(data, 'komentari'))}"
+        )
 
-    if saves_avg > 40:
-        print("  ✅ Saves su iznad prosjeka — nastavi s edukativnim sadržajem.")
-    elif saves_avg > 20:
-        print("  ⚠️  Saves su osrednji — probaj s konkretnijim savjetima (recepti, upute).")
+        add(
+            f"  Prosjek spremanja: "
+            f"{format_average(group_average(data, 'saves'))}"
+        )
+
+        add(
+            f"  Prosjek dosega: "
+            f"{format_average(group_average(data, 'doseg'))}"
+        )
+
+        engagement = group_average(data, "engagement")
+
+        add(
+            f"  Engagement rate: "
+            f"{format_average(engagement, 2)}%"
+            if engagement is not None
+            else "  Engagement rate: N/A"
+        )
+
+    # Najuspješniji tip.
+    best_type, best_type_value = best_group(
+        metrics["po_tipu"], "engagement"
+    )
+
+    if best_type:
+        add(
+            f"\nNajbolji tip prema engagement rateu: "
+            f"{best_type} ({best_type_value:.2f}%)"
+        )
     else:
-        print("  ❌ Saves su niski — povećaj edukativni element u objavama.")
+        add(
+            "\nNajbolji tip prema engagement rateu: "
+            "Nije moguće odrediti bez podataka o dosegu."
+        )
 
-    if komentari_avg > 15:
-        print("  ✅ Komentari su iznad prosjeka — pitanja publici dobro rade.")
+    # Dan objavljivanja.
+    add("\n--- REZULTATI PO DANU OBJAVLJIVANJA ---")
+
+    for dan, data in metrics["po_danu"].items():
+
+        engagement = group_average(data, "engagement")
+
+        add(
+            f"{dan}: "
+            f"{len(data)} objava, "
+            f"prosječni engagement: "
+            f"{format_average(engagement, 2)}%"
+        )
+
+    best_day, best_day_value = best_group(
+        metrics["po_danu"], "engagement"
+    )
+
+    if best_day:
+        add(
+            f"\nNajbolji dan prema engagement rateu: "
+            f"{best_day} ({best_day_value:.2f}%)"
+        )
     else:
-        print("  ⚠️  Komentari su niski — postavi izravnije pitanje na kraju objave.")
+        add(
+            "\nNajbolji dan: Nije moguće odrediti "
+            "bez podataka o dosegu."
+        )
 
-    if interakcija_avg > 5:
-        print("  ✅ Stopa interakcije je iznad 5% — cilj ispunjen.")
-    elif interakcija_avg > 3:
-        print("  ⚠️  Stopa interakcije je 3-5% — blizu cilja, nastavi pratiti.")
+    # Hashtagovi.
+    add("\n--- NAJČEŠĆI HASHTAGOVI ---")
+
+    if metrics["hashtagovi"]:
+        for tag, count in metrics["hashtagovi"].most_common(10):
+            add(f"{tag}: {count} puta")
     else:
-        print("  ❌ Stopa interakcije je ispod 3% — razmisli o jačem hooku.")
+        add("Nema dostupnih hashtagova.")
 
-    print("\n" + "=" * 60)
-    print("💡 Za detaljniju analizu, popuni više objava u CSV.")
-    print("=" * 60)
+    # Preporuke.
+    add("\n--- PREPORUKE ZA SLJEDEĆI CIKLUS ---")
 
+    if metrics["ukupno_objava"] < 5:
+        add(
+            "• Uzorak je malen. Prikupi više objava "
+            "prije donošenja čvrstih zaključaka."
+        )
+
+    if best_type:
+        add(
+            f"• Dodatno testiraj format '{best_type}', "
+            "koji je u ovom uzorku imao najbolji engagement rate."
+        )
+
+    if best_day:
+        add(
+            f"• Razmotri dodatno testiranje objava "
+            f"na dan {best_day}."
+        )
+
+    if not metrics["interakcije"]:
+        add(
+            "• Unesi podatke o dosegu kako bi se mogao "
+            "izračunati engagement rate."
+        )
+
+    if metrics["neispravni_datumi"]:
+        add(
+            f"• {metrics['neispravni_datumi']} datuma nije "
+            "prepoznato. Provjeri format datuma u CSV-u."
+        )
+
+    if metrics["objave_bez_dosega"]:
+        add(
+            f"• {metrics['objave_bez_dosega']} objava nema "
+            "valjan podatak o dosegu."
+        )
+
+    add(
+        "\nNapomena: Rezultati opisuju samo unesene podatke. "
+        "Ne predstavljaju univerzalne benchmarke."
+    )
+
+    add("\n" + "=" * 60)
+    add("Kraj izvještaja")
+    add("=" * 60)
+
+    return "\n".join(lines)
+
+
+# --------------------------------------------------
+# ISPIS I SPREMANJE
+# --------------------------------------------------
+
+def save_report(report):
+    """Sprema izvještaj u output mapu."""
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    try:
+        REPORT_FILE.write_text(report, encoding="utf-8")
+        print(f"\n✅ Izvještaj spremljen: {REPORT_FILE}")
+
+    except OSError as error:
+        print(f"\n❌ Greška pri spremanju izvještaja: {error}")
+
+
+# --------------------------------------------------
+# GLAVNA FUNKCIJA
+# --------------------------------------------------
 
 def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else "metrics.csv"
 
-    if not os.path.exists(path):
-        # Ako metrics.csv ne postoji, probaj template
-        if os.path.exists("metrics_template.csv"):
-            print(f"⚠️  {path} ne postoji. Koristim metrics_template.csv kao primjer.\n")
-            path = "metrics_template.csv"
-        else:
-            print(f"❌ Ni {path} ni metrics_template.csv ne postoje.")
-            sys.exit(1)
+    if len(sys.argv) > 2:
+        print("Korištenje: python analyze_metrics.py [datoteka.csv]")
+        sys.exit(1)
+
+    if len(sys.argv) == 2:
+        path = Path(sys.argv[1])
+
+        if not path.is_absolute():
+            path = BASE_DIR / path
+    else:
+        path = DEFAULT_CSV
+
+    # Ako glavna datoteka ne postoji, koristi predložak.
+    if not path.exists() and TEMPLATE_CSV.exists():
+        print(
+            f"⚠️ {path.name} ne postoji. "
+            "Koristim metrics_template.csv kao primjer.\n"
+        )
+        path = TEMPLATE_CSV
+
+    print("\n🚀 Dida Boža – Instagram Analytics")
+    print("=" * 45)
 
     rows = load_metrics(path)
+
+    print(f"📂 Učitana datoteka: {path.name}")
+    print(f"📊 Broj redaka: {len(rows)}")
+
     metrics = analyze(rows)
-    print_report(metrics)
+
+    report = generate_report(metrics)
+
+    print("\n" + report)
+
+    save_report(report)
+
+    print("\n✅ Analiza završena.")
 
 
 if __name__ == "__main__":
