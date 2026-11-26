@@ -1,204 +1,174 @@
-AI RECEPT: DIDA BOŽA – KORAK PO KORAK
-Autor: Matej Martinović
+# AI RECEPT: DIDA BOŽA — OD BREND BRIEFINGA DO CONTENT & ANALYTICS PIPELINEA
 
-============================================================
-BRIEFING – ULAZNI PODACI
-============================================================
+**Autor:** Matej Martinović
+**Projekt:** Dida Boža — AI-Assisted Content & Analytics Pipeline
+**Repozitorij:** https://github.com/1244Matt1244/dida-boza-ai-recept
+**Web-stranica brenda:** https://www.didaboza.hr/
+**Instagram:** @dida_boza
 
-Brend: Dida Boža (@dida_boza)
-Proizvod: Ekološki džem od smokve, 240 g
-Ciljna publika: Ljubitelji prirodnih proizvoda, foodie publika i
-ljudi zainteresirani za mediteransku gastronomiju i Slow Living.
-Cilj objava: Interakcija, edukacija i emocionalna povezanost.
-Ton komunikacije: Topao, nostalgičan i prirodan.
-Web stranica: https://www.didaboza.hr/
+---
 
-Vizualne smjernice:
-- Tople zemljane boje
-- Mediteranski i dalmatinski ugođaj
-- Kamen, rustikalna keramika i maslinove grančice
-- Prirodno svjetlo i atmosfera zlatnog sata
-- Naglasak na hrani i stvarnom proizvodu
+## 1. BRIEFING — ULAZNI PODACI
 
-Ograničenja:
-- Ne izmišljati podatke o proizvodu, certifikate ili cijene.
-- Ne koristiti AI-generiranu ambalažu kao stvarni proizvod.
-- Stvarnu fotografiju proizvoda integrirati ručno u grafičkoj obradi.
-- Svaka objava mora imati zaseban komunikacijski cilj.
+**Brend:** Dida Boža
+**Proizvod u fokusu:** Ekološki džem od smokve, 240 g
+**Ciljna publika:** Ljubitelji prirodnih proizvoda, gastronomska publika i osobe zainteresirane za mediteransku kuhinju i Slow Living.
+**Ciljevi sadržaja:** Interakcija, edukacija i emocionalna povezanost.
+**Ton komunikacije:** Topao, prirodan i nostalgičan.
 
-============================================================
-PREPORUČENI NAČIN POKRETANJA: STREAMLIT APLIKACIJA
-============================================================
+### Vizualne smjernice
 
-Recept je moguće pokrenuti kroz interaktivnu web-aplikaciju
-koja automatizira Fazu 5 (generiranje tekstova) i nudi
-jednostavno sučelje za ponavljanje cijelog postupka.
+- Tople zemljane boje.
+- Mediteranski i dalmatinski ugođaj.
+- Rustikalna keramika, kamen i maslinove grančice.
+- Prirodno svjetlo i atmosfera zlatnog sata.
+- Naglasak na hrani i stvarnom proizvodu.
 
-Pokretanje:
-  1. pip install -r requirements.txt
-  2. streamlit run app.py
-  3. Otvori http://localhost:8501 u browseru
+### Ograničenja i kontrola kvalitete
 
-U aplikaciji (bočna traka):
-  - Proizvod, ciljna publika, cilj objava, ton komunikacije
-  - Opcionalno: web stranica brenda i inspiracija / uzor
-  - Dry-run način (bez API ključa) za demonstraciju
-  - Generiranje vizuala putem DALL-E 3 (opcionalno, uz API ključ)
-  - Format: statična slika ili karusel (4 slajda)
+- Ne izmišljati informacije o proizvodu, certifikate ili cijene.
+- Ne predstavljati AI-generiranu ambalažu kao stvarni proizvod.
+- Koristiti stvarnu fotografiju proizvoda u završnoj grafičkoj obradi.
+- Svaka objava mora imati jasno definiran komunikacijski cilj.
+- AI-generirani tekst i vizualni materijal moraju proći ljudsku provjeru.
 
-Za stvarno generiranje potreban je OPENAI_API_KEY u .env datoteci
-ili u Streamlit Secrets. Model: gpt-4o, temperatura 0.7.
-Izlaz je identičan CLI verziji (vidi Faze 1–7 ispod).
+---
 
-============================================================
-ALTERNATIVNI NAČIN: CLI SKRIPTA
-============================================================
+## 2. FAZA 1 — ANALIZA BRENDA I DEFINIRANJE KONCEPTA
 
-Ako želiš pokrenuti bez web-sučelja:
-  python generate_content.py             (stvarno generiranje)
-  python generate_content.py --dry-run   (demo bez API ključa)
+**Alati:** Službena web-stranica, Instagram profil, ChatGPT i ručna analiza.
 
-Rezultat se sprema u output/generirani_sadrzaj.txt.
+### Ulazni podaci
 
-============================================================
-FAZA 1: ANALIZA BRENDA I DEFINIRANJE KONCEPTA
-============================================================
+- Službena web-stranica: https://www.didaboza.hr/
+- Instagram profil: https://www.instagram.com/dida_boza/
+- Dostupne informacije o proizvodu.
+- Vizualni identitet i komunikacijski ton brenda.
 
-Alati: Web stranica brenda, Instagram profil i ChatGPT.
-
-ULAZ:
-- Službena web stranica Dida Boža
-- Instagram profil @dida_boza
-- Informacije o proizvodu
-- Vizualni identitet i komunikacijski ton brenda
-
-PROCES:
+### Postupak
 
 1. Pregledati dostupne informacije o brendu i proizvodu.
-2. Izdvojiti prepoznatljive vizualne elemente.
+2. Izdvojiti prepoznatljive vizualne i komunikacijske elemente.
 3. Definirati ciljnu publiku i ton komunikacije.
-4. Osmisliti tri objave s različitim ciljevima:
-   - Objava 1: poticanje komentara i interakcije.
-   - Objava 2: predstavljanje proizvoda i edukacija.
-   - Objava 3: emocionalna povezanost i označavanje prijatelja.
+4. Osmisliti tri objave s različitim ciljevima.
 
-IZLAZ:
-Kreativni koncept za tri Instagram objave, uključujući
-temu, poruku, cilj i vizualni smjer.
+### Planirane objave
 
-============================================================
-FAZA 2: GENERIRANJE VIZUALNE POZADINE
-============================================================
+**Objava 1 — Interakcija**
 
-Alat: AI generator slika (DALL-E 3 putem ChatGPT-a ili API-ja).
+Tema: Kombinacija smokve i sira.
+Naslov: „Slatko susreće slano”.
+Cilj: Potaknuti komentare i razgovor s publikom.
 
-ULAZ:
-- Kreativni koncept iz Faze 1
-- Vizualne smjernice brenda
-- Opis proizvoda i željena kompozicija
+**Objava 2 — Predstavljanje proizvoda i edukacija**
 
-PROMPT ZA VIZUAL:
+Tema: Mediteranski način posluživanja.
+Naslov: „Smokva. Kruh. Malo Mediterana.”
+Cilj: Predstaviti ideju posluživanja i potaknuti spremanje objave.
 
-"Golden-hour Mediterranean terrace scene featuring crusty
+**Objava 3 — Emocionalna povezanost**
+
+Tema: Mali svakodnevni rituali.
+Naslov: „Mali ritual. Veliki užitak.”
+Cilj: Potaknuti osobne reakcije i označavanje prijatelja.
+
+### Rezultat
+
+Kreativni koncept za tri objave s definiranim ciljem, porukom i vizualnim smjerom.
+
+---
+
+## 3. FAZA 2 — AI GENERIRANJE VIZUALA
+
+**Alat:** AI alat za generiranje slika.
+
+Početne vizualne scene izrađene su pomoću AI generiranja slika. Konkretan naziv alata i model nisu navedeni jer nisu pouzdano dokumentirani.
+
+### Primjer prompta za vizualnu pozadinu
+
+```text
+Golden-hour Mediterranean terrace scene featuring crusty
 sourdough bread topped with creamy cheese and glossy fig
 compote, served on a handmade rustic ceramic plate.
+
 Fresh figs, a small bowl of fig jam, linen fabric and olive
 branches create a warm Mediterranean atmosphere.
+
 Rustic stone tabletop, softly blurred Dalmatian coastal
 background, natural golden-hour lighting, elegant editorial
 food photography, realistic textures, no people, no text,
-no logos, no packaging."
+no logos, no packaging.
+```
 
-PROCES:
+### Postupak
 
-1. Generirati vizualnu scenu prema promptu.
-2. Pregledati dobivene varijante.
-3. Odabrati kompoziciju s najboljim osvjetljenjem i prostorom
-   za naknadnu integraciju stvarnog proizvoda.
-4. Provjeriti da vizual ne sadrži izmišljene etikete ili logotipe.
+1. Pripremiti prompt prema kreativnom konceptu.
+2. Generirati vizualnu scenu.
+3. Pregledati dobiveni rezultat.
+4. Odabrati kompoziciju koja odgovara ideji objave.
+5. Provjeriti da vizual ne sadrži pogrešne logotipe, etikete ili ambalažu.
 
-IZLAZ:
-AI-generirana pozadinska fotografija za daljnju obradu.
+### Rezultat
 
-============================================================
-FAZA 3: LJUDSKA DORADA I INTEGRACIJA PROIZVODA
-============================================================
+Početni AI-generirani vizuali koji se koriste kao podloga za završnu grafičku obradu.
 
-Alat: Canva.
+**Važno:** AI-generirani vizual nije automatski konačna objava. Potrebna je ljudska provjera i dorada.
 
-ULAZ:
-- AI-generirana pozadinska fotografija
-- Stvarna fotografija proizvoda Dida Boža
+---
 
-PROCES:
+## 4. FAZA 3 — LJUDSKA DORADA I INTEGRACIJA STVARNOG PROIZVODA
 
-1. Pripremiti stvarnu fotografiju staklenke proizvoda.
-2. Ukloniti pozadinu fotografije proizvoda.
-3. Integrirati staklenku u AI-generiranu scenu.
-4. Prilagoditi veličinu, perspektivu i poziciju proizvoda.
-5. Dodati sjenu i prilagoditi vizualni sklad s pozadinom.
-6. Provjeriti čitljivost i vjerodostojnost proizvoda.
+**Alat:** Canva.
 
-VAŽNO:
-AI se koristi za stvaranje ambijenta, dok se stvarna fotografija
-proizvoda koristi kako bi se izbjeglo izmišljanje ambalaže,
-etikete ili izgleda proizvoda.
+### Ulazni materijali
 
-IZLAZ:
-Kompozitna fotografija s AI-generiranim ambijentom i stvarnim
-proizvodom.
+- AI-generirana vizualna pozadina.
+- Stvarna fotografija proizvoda Dida Boža.
 
-============================================================
-FAZA 4: TIPOGRAFIJA I ZAVRŠNA GRAFIČKA OBRADA
-============================================================
+### Postupak
 
-Alat: Canva.
+1. Pripremiti fotografiju stvarnog proizvoda.
+2. Ukloniti pozadinu fotografije proizvoda prema potrebi.
+3. Integrirati staklenku u odabranu vizualnu scenu.
+4. Prilagoditi veličinu, perspektivu i položaj proizvoda.
+5. Dodati sjenu i uskladiti proizvod s pozadinom.
+6. Provjeriti čitljivost i vjerodostojnost prikaza.
 
-ULAZ:
-- Vizual iz Faze 3
-- Naslov i kratka poruka za svaku objavu
-- Vizualne smjernice brenda
+### Konkretna ljudska intervencija
 
-PROCES:
+Stvarna fotografija staklenke korištena je umjesto AI-generirane ambalaže. Time se izbjegava prikazivanje izmišljene etikete ili pogrešnog izgleda proizvoda.
 
-Na svaku sliku dodati naslov i kratku poruku:
+### Rezultat
 
-OBJAVA 1:
-"Slatko susreće slano"
-"Jeste li probali smokvu uz sir?"
+Tri završne grafike za Instagram objave.
 
-OBJAVA 2:
-"Smokva. Kruh. Malo Mediterana."
-"Jednostavan zalogaj, veliki užitak."
+---
 
-OBJAVA 3:
-"Mali ritual. Veliki užitak."
-"Pronađite svoj omiljeni način posluživanja smokve."
+## 5. FAZA 4 — TEKSTOVI, TIPOGRAFIJA I ZAVRŠNA OBRADA
 
-Dodati diskretan grafički element koji povezuje tri objave
-i zadržati dosljednu tipografiju, boje i kompoziciju.
+**Alati:** ChatGPT i Canva.
 
-IZLAZ:
-Tri finalne Instagram grafike spremne za objavu.
+### Primjeri tekstualnih elemenata na vizualima
 
-============================================================
-FAZA 5: GENERIRANJE TEKSTOVA I HASHTAGOVA
-============================================================
+**Objava 1**
 
-Alat: ChatGPT, Streamlit aplikacija (app.py) i Python skripta
-(generate_content.py).
+„Slatko susreće slano”
+„Jeste li probali smokvu uz sir?”
 
-ULAZ:
-- Brend: Dida Boža
-- Proizvod: Ekološki džem od smokve
-- Ciljna publika: Ljubitelji prirodnih proizvoda i gastronomije
-- Cilj: Interakcija, edukacija i emocionalna povezanost
-- Ton: Topao, nostalgičan i prirodan
+**Objava 2**
 
-GLAVNI PROMPT:
+„Smokva. Kruh. Malo Mediterana.”
+„Jednostavan zalogaj, veliki užitak.”
 
-"Napiši tri Instagram objave za hrvatski brend Dida Boža,
-koji proizvodi ekološke džemove.
+**Objava 3**
+
+„Mali ritual. Veliki užitak.”
+„Pronađite svoj omiljeni način posluživanja smokve.”
+
+### Glavni prompt za izradu tekstova
+
+```text
+Napiši tri Instagram objave za hrvatski brend Dida Boža.
 
 Proizvod u fokusu je ekološki džem od smokve.
 
@@ -212,124 +182,285 @@ Objava 3 treba stvoriti emocionalnu povezanost s publikom
 kroz temu malih svakodnevnih rituala.
 
 Koristi topao, prirodan i nostalgičan ton.
+
 Tekstovi trebaju biti kratki, prirodni i prikladni za Instagram.
 Dodaj relevantne hrvatske i engleske hashtagove.
-Nemoj izmišljati informacije o proizvodu, certifikate ili cijene."
 
-PROCES:
+Nemoj izmišljati informacije o proizvodu,
+certifikate ili cijene.
+```
 
-1. Unijeti parametre brenda, proizvoda, publike i cilja.
-2. Generirati tri različita teksta.
+### Postupak
+
+1. Pripremiti kontekst brenda i proizvoda.
+2. Generirati početne prijedloge tekstova pomoću ChatGPT-a.
 3. Pregledati tekstove i ukloniti neprirodne formulacije.
-4. Provjeriti usklađenost s vizualima.
+4. Uskladiti tekstove s vizualima i komunikacijskim ciljevima.
 5. Odabrati relevantne hashtagove.
-6. Pohraniti konačne tekstove u Tekstovi_objava.txt.
+6. Pohraniti završne tekstove u `Tekstovi_objava.txt`.
 
-IZLAZ:
-Tri Instagram teksta s naslovima, pozivima na interakciju
-i hashtagovima.
+### Rezultat
 
-============================================================
-FAZA 6: AUTOMATIZACIJA I PONOVLJIVOST
-============================================================
+Tri pripadajuća teksta Instagram objava s naslovima, pozivima na interakciju i hashtagovima.
 
-Alat: Python, OpenAI API, generate_content.py i Streamlit aplikacija.
+---
 
-Postoje dva načina pokretanja:
+## 6. FAZA 5 — PYTHON AUTOMATIZACIJA I STREAMLIT APLIKACIJA
 
-A) STREAMLIT APLIKACIJA (preporučeno):
-   streamlit run app.py
-   - Interaktivni brifing u bočnoj traci
-   - Dry-run način (bez API ključa) za demonstraciju
-   - Stvarno generiranje putem GPT-4o
-   - Opcionalno DALL-E 3 generiranje vizuala
-   - Preuzimanje rezultata u .txt
+Nakon izrade početnog kreativnog materijala projekt je proširen u Python aplikaciju koja povezuje pripremu sadržaja, lokalno generiranje karusela i analizu podataka.
 
-B) CLI SKRIPTA:
-   python generate_content.py             (stvarno generiranje)
-   python generate_content.py --dry-run   (demo bez API ključa)
+**Važno:** Aplikacija ne poziva automatski OpenAI API i ne generira tekstove ili fotografije putem GPT-4o odnosno DALL-E API-ja. AI-generiranje sadržaja odvija se zasebno, uz ručno korištenje ChatGPT-a i AI alata za slike.
 
-Osnovni postupak:
+### Pokretanje aplikacije
 
-1. Pripremiti ulazne parametre i smjernice.
-2. Pokrenuti aplikaciju ili skriptu.
-3. Generirati prijedloge tekstova i hashtagova.
-4. Pregledati i doraditi rezultate.
-5. Pohraniti konačni sadržaj.
+Instalirati ovisnosti:
 
-Za korištenje OpenAI API-ja potreban je odgovarajući API ključ
-i konfiguracija prema uputama u README.md (datoteka .env ili
-Streamlit Secrets).
+```bash
+pip install -r requirements.txt
+```
 
-SIGURNOSNE ODLUKE:
-- DALL-E opcija je vidljiva samo ako postoji API ključ.
-- Nema automatskog generiranja slika bez eksplicitnog klika.
-- U repozitoriju nema API ključeva; config.example.env sadrži
-  samo prazan primjer.
+Pokrenuti Streamlit:
 
-Napomena:
-AI generirani sadržaj nije automatski konačni marketinški materijal.
-Ljudska provjera i grafička dorada ostaju važan dio postupka.
+```bash
+streamlit run app.py
+```
 
-============================================================
-FAZA 7: EVALUACIJA I POBOLJŠANJE
-============================================================
+Aplikacija se otvara lokalno u pregledniku na adresi:
 
-Nakon objavljivanja sadržaja moguće je pratiti:
+```text
+http://localhost:8501
+```
 
-- Broj komentara
-- Broj spremanja (saves)
-- Doseg objava
-- Broj dijeljenja
-- Stopu interakcije
+### Glavne funkcionalnosti aplikacije
 
-Podaci se mogu koristiti za poboljšanje budućih promptova
-i odabir učinkovitijih komunikacijskih pristupa.
+**1. Prompt preparation**
 
-Bez pristupa Instagram Insights podacima ne treba prikazivati
-procijenjene rezultate kao stvarne rezultate brenda.
+- Priprema konteksta brenda.
+- Učitavanje smjernica tona komunikacije.
+- Izrada prompta za vanjski AI alat.
+- Ručno korištenje pripremljenog prompta.
 
-Primjer ciklusa poboljšanja:
+**2. Content**
 
-1. Objaviti sadržaj.
-2. Prikupiti dostupne metrike.
-3. Usporediti rezultate triju objava.
-4. Utvrditi koji je komunikacijski pristup bio uspješniji.
-5. Ažurirati promptove i smjernice za sljedeći ciklus.
+- Priprema sadržaja za objave.
+- Rad s tekstovima i materijalima.
+- Pohrana i pregled sadržaja prema implementiranim mogućnostima aplikacije.
 
-============================================================
-DODATNA MOGUĆNOST: KARUSEL (4 slajda)
-============================================================
+**3. Carousel**
 
-Uz tri statične objave, recept podržava i karusel format.
+- Pokretanje lokalnog Python generatora.
+- Izrada četiri grafička slajda.
+- Korištenje Pillow biblioteke.
+- Spremanje rezultata u `images/karusel/`.
 
-A) LOKALNI GENERATOR (bez API poziva):
-   python make_carousel.py
-   - Koristi Pillow za sastavljanje 4 slajda
-   - Slajdovi: Hook → Proizvod → Edukacija → CTA
-   - Rezultat: images/karusel/slajd_1.png … slajd_4.png
-   - Bez trošenja kredita, deterministički izlaz
+**4. Analytics**
 
-B) DALL-E 3 KARUSEL (uz API ključ):
-   - U aplikaciji odaberi format "Karusel (4 slajda)"
-   - Generira 4 AI scene (~$0.16 po karuselu)
+- Učitavanje CSV datoteke.
+- Analiza dostupnih metrika.
+- Provjera kvalitete podataka.
+- Pregled rezultata i osnovnih pokazatelja.
 
-============================================================
-ZAVRŠNI REZULTAT
-============================================================
+**5. Reports**
 
-Isporučeni materijali:
+- Usporedba razdoblja.
+- Izrada tjednog izvještaja.
+- Kreiranje dashboarda.
+- Rad s pripremljenim demo skupovima podataka.
 
-- Tri finalne Instagram grafike
-- Tri pripadajuća teksta objava
-- Paket promptova i uputa za ponavljanje postupka
-- Python skripta za pomoć pri generiranju sadržaja
-- Streamlit aplikacija s interaktivnim brifingom
-- Generator karusela (4 slajda) pomoću Pillow
-- PDF dokumentacija s opisom procesa i ljudske dorade
-- Live demo na Streamlit Cloudu
+### Važno ograničenje analitike
 
-Glavni princip:
-AI ubrzava istraživanje, ideaciju i stvaranje početnih prijedloga,
-dok ljudska provjera, kreativna odluka i grafička dorada osiguravaju
-kvalitetu i vjerodostojnost konačnog sadržaja.
+Učitavanje vlastite CSV datoteke u Analytics dijelu ne znači da se ta datoteka automatski koristi u svim funkcijama Reports dijela.
+
+Usporedbe, tjedni izvještaji i dashboard u trenutačnoj implementaciji koriste pripremljene demo CSV skupove podataka.
+
+Demo metrike su simulirane i nisu stvarni Instagram Insights podaci brenda Dida Boža.
+
+---
+
+## 7. FAZA 6 — LOKALNI GENERATOR KARUSELA
+
+**Alati:** Python i Pillow.
+
+Pokretanje:
+
+```bash
+python make_carousel.py
+```
+
+Generator lokalno sastavlja četiri slajda:
+
+1. Hook — privlačenje pažnje.
+2. Proizvod — predstavljanje proizvoda.
+3. Edukacija — dodatna informacija ili ideja posluživanja.
+4. CTA — poziv na akciju.
+
+Rezultati se spremaju u:
+
+```text
+images/karusel/slajd_1.png
+images/karusel/slajd_2.png
+images/karusel/slajd_3.png
+images/karusel/slajd_4.png
+```
+
+Generator koristi lokalne grafičke elemente i Python/Pillow. Ne poziva DALL-E niti zahtijeva API ključ.
+
+**Razlika između dvaju vizualnih postupaka:**
+
+- Tri izvorne Instagram grafike nastale su uz AI-generirane vizualne podloge i ljudsku grafičku obradu.
+- Kasniji Python generator izrađuje dodatni karusel lokalnim sastavljanjem grafičkih elemenata.
+
+To su dva odvojena dijela projekta.
+
+---
+
+## 8. FAZA 7 — ANALITIKA, USPOREDBA I POBOLJŠANJE
+
+**Alati:** Python, Pandas, CSV i Streamlit.
+
+Projekt uključuje lokalnu obradu metrika i pripremu izvještaja.
+
+### Praćene metrike
+
+Ovisno o dostupnim stupcima u ulaznim podacima:
+
+- Doseg objava.
+- Broj lajkova.
+- Broj komentara.
+- Broj spremanja.
+- Broj dijeljenja.
+- Interakcije i stopa angažmana.
+
+### Kontrola kvalitete podataka
+
+Analitički dio provjerava podatke, uključujući:
+
+- Neispravne datume.
+- Nedostajuće vrste objava.
+- Nedostajuće vrijednosti metrika.
+- Negativne vrijednosti.
+- Nulti ili nedostajući doseg.
+
+### Usporedba i izvještavanje
+
+Dodatne skripte omogućuju:
+
+- Analizu metrika.
+- Usporedbu rezultata između razdoblja.
+- Izradu tjednog izvještaja.
+- Kreiranje dashboarda.
+
+### Feedback loop
+
+Nakon stvarnog objavljivanja sadržaja može se provesti sljedeći ciklus:
+
+1. Objaviti tri objave.
+2. Nakon unaprijed definiranog razdoblja prikupiti stvarne Instagram Insights podatke.
+3. Usporediti doseg, komentare, spremanja i dijeljenja.
+4. Utvrditi koji je komunikacijski pristup imao bolje rezultate.
+5. Ažurirati buduće kreativne koncepte i promptove.
+6. Ponoviti postupak i usporediti rezultate novog ciklusa.
+
+**Ograničenje:** Budući da projekt nema izravan pristup stvarnim Instagram Insights podacima, nije moguće tvrditi da je učinkovitost objava već potvrđena stvarnim rezultatima. Demo podaci služe demonstraciji analitičkog postupka.
+
+---
+
+## 9. PONOVLJIVOST — GLAVNE NAREDBE
+
+### Instalacija i pokretanje
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+### Generiranje lokalnog karusela
+
+```bash
+python make_carousel.py
+```
+
+### Pokretanje analize
+
+```bash
+python analyze_metrics.py
+```
+
+### Pokretanje cjelokupnog lokalnog workflowa
+
+```bash
+python run_all.py
+```
+
+### Testiranje
+
+```bash
+python -m pytest tests/ -v
+```
+
+### Provjera sintakse
+
+```bash
+python -m compileall -q .
+```
+
+### Provjera ovisnosti
+
+```bash
+python -m pip check
+```
+
+Točne ulazne datoteke, izlazne lokacije i dodatne opcije nalaze se u README-u i pripadajućim Python skriptama.
+
+---
+
+## 10. TESTIRANJE I TEHNIČKA PROVJERA
+
+U projektu je provedena provjera funkcionalnosti i tehničke ispravnosti.
+
+Zabilježeni rezultati:
+
+- 21 uspješno izvršen test.
+- Uspješan `compileall`.
+- Uspješan `pip check`.
+- GitHub Actions workflow uspješno izvršen.
+
+Testovi provjeravaju implementirane funkcionalnosti i obradu podataka. Ne predstavljaju dokaz marketinške učinkovitosti objava.
+
+---
+
+## 11. OGRANIČENJA I MOGUĆA POBOLJŠANJA
+
+Trenutačna verzija projekta predstavlja lokalni workflow za pripremu sadržaja i demonstraciju analitičkog procesa.
+
+Moguća buduća poboljšanja:
+
+- Integracija stvarnih Instagram Insights podataka.
+- Automatizirani uvoz metrika.
+- Povezivanje vlastitih CSV podataka s cijelim Reports workflowom.
+- Dodatna analiza uspješnosti različitih formata objava.
+- Integracija AI API-ja za automatsko generiranje tekstova, uz jasnu konfiguraciju i kontrolu troškova.
+- Napredniji dashboard i vizualizacije.
+- Praćenje odobravanja sadržaja i komentara članova tima.
+
+---
+
+## 12. ZAVRŠNI REZULTAT
+
+Projekt obuhvaća:
+
+- Analizu brenda i definiranje komunikacijskog koncepta.
+- Tri završne Instagram grafike.
+- Tri pripadajuća teksta objava.
+- Promptove i upute za ponavljanje postupka.
+- AI-generirane vizualne podloge uz ljudsku grafičku doradu.
+- Python aplikaciju sa Streamlit sučeljem.
+- Lokalni generator četverodijelnog karusela.
+- CSV analitiku i provjeru kvalitete podataka.
+- Usporedbu razdoblja, tjedne izvještaje i dashboard.
+- Automatizirane testove i GitHub Actions workflow.
+- PDF dokumentaciju i javno dostupnu demonstracijsku aplikaciju.
+
+**Glavni princip projekta:**
+
+AI ubrzava istraživanje, ideaciju i izradu početnih prijedloga. Ljudska provjera, kreativne odluke i grafička dorada osiguravaju vjerodostojnost konačnog sadržaja. Python automatizacija zatim proširuje proces na ponovljivu pripremu sadržaja i analizu rezultata.
