@@ -229,7 +229,7 @@ Skripta izrađuje četiri PNG slajda u direktoriju:
 images/karusel/
 ```
 
-Vizuali se izrađuju pomoću Pythona i Pillow biblioteke. Kod lokalnog pokretanja obrada se izvršava lokalno, a u objavljenoj Streamlit aplikaciji na poslužitelju.
+Vizuali se izrađuju pomoću Pythona i Pillow biblioteke. Obrada se izvršava u okruženju u kojem je aplikacija pokrenuta — lokalno ili na Streamlit Cloud poslužitelju.
 
 ### Korak 3 — priprema Canva uputa
 
