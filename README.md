@@ -1,15 +1,17 @@
 # Dida Boža — AI-Assisted Content & Analytics Pipeline
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue)
+![Python](https://img.shields.io/badge/Python-3.10--3.12%20tested-blue)
 ![Pillow](https://img.shields.io/badge/Pillow-Image%20Processing-yellow)
 ![Tests](https://img.shields.io/badge/Tests-21%20passed-brightgreen)
 [![CI](https://github.com/1244Matt1244/dida-boza-ai-recept/actions/workflows/tests.yml/badge.svg)](https://github.com/1244Matt1244/dida-boza-ai-recept/actions/workflows/tests.yml)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://dida-boza-ai-recept-hcp9mzhdpg2sauln56z57m.streamlit.app/)
 ![API Cost](https://img.shields.io/badge/API%20Cost-€0%20for%20core%20workflow-brightgreen)
 
-Python projekt koji demonstrira pripremu AI-potpomognutog Instagram sadržaja, lokalnu izradu vizualnih materijala, analizu društvenih metrika i automatizirano izvještavanje za hrvatski brend **Dida Boža**.
+Python projekt koji demonstrira pripremu AI-potpomognutog Instagram sadržaja, izradu vizualnih materijala, analizu društvenih metrika i automatizirano izvještavanje za hrvatski brend **Dida Boža**.
 
-Projekt povezuje Python automatizaciju, prompt engineering, obradu slika, CSV podatke, analitičke izračune i Streamlit sučelje u jedinstveni workflow.
+Projekt povezuje Python automatizaciju, prompt engineering, obradu slika, CSV podatke, analitičke izračune, Streamlit korisničko sučelje, automatizirano testiranje i GitHub Actions CI.
+
+**Ključne kompetencije:** Python, automatizacija procesa, obrada i analiza podataka, prompt engineering, Streamlit, testiranje i Git/GitHub.
 
 ## 🚀 Live Demo
 
@@ -67,10 +69,12 @@ Aplikacija sadrži pet funkcionalnih kartica:
 
 ### 3. Karusel
 
-- pokretanje lokalne Python skripte;
+- pokretanje Python skripte iz aplikacije;
 - izrada Instagram carousel slajdova pomoću Pillow biblioteke;
 - pregled generiranih PNG datoteka;
 - pojedinačno preuzimanje slajdova.
+
+Kod lokalnog pokretanja obrada se izvršava u lokalnom Python okruženju. U objavljenoj verziji aplikacije obrada se izvršava na Streamlit Cloud poslužitelju.
 
 ### 4. Analitika
 
@@ -84,7 +88,7 @@ Aplikacija sadrži pet funkcionalnih kartica:
 - provjera kvalitete podataka;
 - generiranje i preuzimanje tekstualnog izvještaja.
 
-Učitana CSV datoteka obrađuje se preko privremene datoteke koja se uklanja nakon obrade. Aplikacija je automatski ne sprema trajno.
+Učitana CSV datoteka koristi se za analizu u aplikaciji. Analitički modul obrađuje podatke u okruženju u kojem je aplikacija pokrenuta, lokalno ili na Streamlit Cloud poslužitelju.
 
 ### 5. Izvještaji
 
@@ -225,7 +229,7 @@ Skripta izrađuje četiri PNG slajda u direktoriju:
 images/karusel/
 ```
 
-Vizuali se izrađuju lokalno pomoću Pythona i Pillow biblioteke.
+Vizuali se izrađuju pomoću Pythona i Pillow biblioteke. Kod lokalnog pokretanja obrada se izvršava lokalno, a u objavljenoj Streamlit aplikaciji na poslužitelju.
 
 ### Korak 3 — priprema Canva uputa
 
@@ -379,7 +383,7 @@ Osnovni workflow ne zahtijeva OpenAI API ključ.
 
 - Promptove priprema Python.
 - Tekstove generira korisnik ručno u ChatGPT-u.
-- Karusel se izrađuje lokalno pomoću Pillow biblioteke.
+- Karusel se izrađuje pomoću Pillow biblioteke.
 - Analitika se izvršava nad CSV podacima.
 - Demonstracijske metrike nisu stvarni Instagram podaci.
 - Nema automatskih plaćenih API poziva u opisanom workflowu.
