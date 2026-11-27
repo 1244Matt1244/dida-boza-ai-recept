@@ -349,7 +349,7 @@ st.info(
     "Aplikacija priprema prompt za ChatGPT. "
     "Tekst objava generiraš u ChatGPT-u, "
     "a zatim ga vraćaš u aplikaciju. "
-    "Analitika se izvršava lokalno."
+    "Analitika se izvršava unutar aplikacije."
 )
 
 
@@ -666,7 +666,7 @@ with tab3:
     st.subheader("3. Instagram karusel")
 
     st.write(
-        "Izradi vizualne slajdove lokalno pomoću Pillow biblioteke."
+        "Izradi vizualne slajdove unutar aplikacije pomoću Pillow biblioteke."
     )
 
     st.caption(
